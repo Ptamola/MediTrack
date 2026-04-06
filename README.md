@@ -1,2 +1,2 @@
-# MediTrack
-Repositorio principal para la creación del codigo de MediTrack
+﻿# MediTrack
+Repositorio principal para la creaciÃ³n del codigo de MediTrack
