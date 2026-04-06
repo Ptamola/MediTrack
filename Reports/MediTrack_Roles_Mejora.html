@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>MediTrack - Analisis de Roles y Propuesta de Mejora</title>
+<style>
+body{font-family:Segoe UI,Arial,sans-serif;color:#0f172a;margin:40px;line-height:1.55;background:#fff}
+h1{font-size:30px;margin:0 0 8px;color:#1d4ed8}
+h2{font-size:22px;margin:30px 0 10px;color:#1e3a8a;border-bottom:2px solid #dbeafe;padding-bottom:6px}
+h3{font-size:16px;margin:18px 0 8px;color:#334155}
+p{margin:8px 0}
+ul{margin:8px 0 14px 20px}
+li{margin:6px 0}
+.header{margin-bottom:24px}
+.note{color:#475569}
+.box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin-top:10px}
+.footer{margin-top:28px;font-size:12px;color:#64748b}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>MediTrack - Analisis de Roles y Propuesta de Mejora</h1>
+<p class="note">Documento de apoyo para revisar la experiencia de administrador, doctor y paciente dentro de la aplicacion.</p>
+</div>
+
+<h2>1. Vision general</h2>
+<p>MediTrack ya tiene una base funcional clara: acceso por roles, gestion de usuarios, asignaciones, medicacion, mediciones, notas e informes.</p>
+<p>La siguiente etapa no pasa por anadir modulos sin control, sino por pulir la experiencia de cada perfil para que cada usuario entienda rapido que puede hacer y como hacerlo.</p>
+<p>Este documento resume la utilidad de cada apartado, detecta oportunidades de mejora y propone los siguientes pasos recomendados.</p>
+
+<h2>2. Rol Administrador</h2>
+<div class="box">
+<p><strong>Utilidad general:</strong> su funcion principal es mantener el sistema ordenado, controlar el acceso y garantizar que la estructura base permita el trabajo del resto de usuarios.</p>
+<h3>Apartados y utilidad especifica</h3>
+<ul>
+<li><strong>Resumen o dashboard:</strong> ofrece una vision rapida del volumen de usuarios, pacientes, doctores y asignaciones activas.</li>
+<li><strong>Usuarios:</strong> permite crear cuentas, editar datos basicos, revisar roles y activar o desactivar accesos.</li>
+<li><strong>Asignaciones:</strong> conecta a cada paciente con su doctor actual y sostiene la relacion operativa del seguimiento clinico.</li>
+<li><strong>Informes:</strong> permite revisar informes generados, comprobar su estado y utilizar la informacion historica como apoyo administrativo o academico.</li>
+</ul>
+<h3>Como podria mejorar este rol</h3>
+<ul>
+<li>Hacer mas evidente el estado de cada usuario con chips visuales de Activo, Inactivo, Doctor, Paciente o Administrador.</li>
+<li>Anadir filtros combinados en usuarios: por rol, por estado y por texto libre en nombre o correo.</li>
+<li>Mostrar historial de reasignaciones doctor-paciente con fechas de inicio y fin para dar trazabilidad administrativa real.</li>
+<li>Incorporar acciones rapidas como restablecer contrasena, duplicar ficha base o exportar un listado filtrado.</li>
+</ul>
+<h3>Siguientes pasos para este rol</h3>
+<ul>
+<li>Prioridad alta: terminar de pulir la gestion de usuarios para que la ficha superior sea totalmente estable en cualquier resolucion.</li>
+<li>Prioridad alta: anadir filtros y busqueda global dentro del listado de usuarios.</li>
+<li>Prioridad media: vista de historial de asignaciones y cambios de estado.</li>
+<li>Prioridad media: exportacion administrativa de listados a PDF o Excel.</li>
+</ul>
+</div>
+
+<h2>3. Rol Doctor</h2>
+<div class="box">
+<p><strong>Utilidad general:</strong> su objetivo es revisar pacientes asignados, entender su evolucion clinica y dejar trazabilidad medica util para el paciente y para el propio seguimiento.</p>
+<h3>Apartados y utilidad especifica</h3>
+<ul>
+<li><strong>Resumen o dashboard:</strong> resume cuantos pacientes tiene asignados, cual esta activo en contexto y si hay informacion clinica relevante a revisar.</li>
+<li><strong>Pacientes:</strong> actua como puerta de entrada al detalle de cada paciente y fija el contexto clinico para el resto de modulos.</li>
+<li><strong>Enfermedades:</strong> permite revisar patologias cronicas registradas y actualizar observaciones relacionadas con cada caso.</li>
+<li><strong>Medicacion:</strong> permite controlar tratamiento actual, frecuencia, horario y observaciones del plan terapeutico.</li>
+<li><strong>Mediciones:</strong> sirve para interpretar evolucion clinica a partir de glucosa, peso, presion arterial y otros indicadores.</li>
+<li><strong>Notas medicas:</strong> conserva indicaciones, hallazgos y observaciones compartidas con el paciente cuando procede.</li>
+<li><strong>Informes:</strong> resume el estado del paciente en un periodo concreto y facilita la exportacion a PDF.</li>
+</ul>
+<h3>Como podria mejorar este rol</h3>
+<ul>
+<li>Destacar alertas clinicas visuales cuando un paciente tenga mediciones fuera de rango o no tenga seguimiento reciente.</li>
+<li>Permitir comparar periodos para ver tendencia de mejora o empeoramiento sin depender solo de una lista de registros.</li>
+<li>Anadir una linea temporal clinica que mezcle mediciones, notas, cambios de medicacion y reasignaciones del historial.</li>
+<li>Mejorar la seleccion del paciente activo para que siempre quede muy visible en todos los modulos.</li>
+</ul>
+<h3>Siguientes pasos para este rol</h3>
+<ul>
+<li>Prioridad alta: mejorar lectura visual de mediciones y graficas con paneles mas claros y estados de alerta.</li>
+<li>Prioridad alta: reforzar el detalle del paciente como vista central del rol doctor.</li>
+<li>Prioridad media: timeline clinico unificado.</li>
+<li>Prioridad media: plantillas de notas e informes para ahorrar tiempo al profesional.</li>
+</ul>
+</div>
+
+<h2>4. Rol Paciente</h2>
+<div class="box">
+<p><strong>Utilidad general:</strong> su funcion es registrar informacion de salud, comprender su estado actual y consultar el seguimiento que realiza el doctor de forma sencilla y motivadora.</p>
+<h3>Apartados y utilidad especifica</h3>
+<ul>
+<li><strong>Dashboard:</strong> muestra un resumen de enfermedades, medicacion activa, proximas tomas, mediciones recientes y accesos a informes o notas.</li>
+<li><strong>Mi perfil:</strong> permite mantener actualizados los datos personales y de contacto.</li>
+<li><strong>Enfermedades:</strong> muestra el listado de patologias cronicas asociadas y sus observaciones principales.</li>
+<li><strong>Medicacion:</strong> ayuda a entender el tratamiento, horarios y recordatorios locales.</li>
+<li><strong>Mediciones:</strong> permite registrar valores periodicos y ver la evolucion de indicadores clave.</li>
+<li><strong>Notas medicas:</strong> da acceso a mensajes o indicaciones visibles emitidas por el doctor.</li>
+<li><strong>Informes:</strong> resume el estado del paciente y permite revisar o exportar un documento del periodo elegido.</li>
+</ul>
+<h3>Como podria mejorar este rol</h3>
+<ul>
+<li>Hacer el dashboard mas explicativo y motivador, con mensajes tipo Proxima accion recomendada o Estado general de seguimiento.</li>
+<li>Mostrar validaciones mas pedagogicas al introducir mediciones para evitar dudas sobre unidades o rangos.</li>
+<li>Anadir semaforos sencillos en medicacion y mediciones para que el paciente entienda si todo esta al dia.</li>
+<li>Crear una experiencia de informe mas orientada al paciente, con lenguaje menos tecnico y resumen entendible.</li>
+</ul>
+<h3>Siguientes pasos para este rol</h3>
+<ul>
+<li>Prioridad alta: mejorar usabilidad y claridad visual en modulos de medicacion y mediciones.</li>
+<li>Prioridad alta: simplificar los mensajes clinicos para que el paciente entienda el valor de cada apartado.</li>
+<li>Prioridad media: recordatorios mas claros y panel de adherencia al tratamiento.</li>
+<li>Prioridad media: resumen de bienestar o adherencia mensual.</li>
+</ul>
+</div>
+
+<h2>5. Siguientes pasos recomendados</h2>
+<ul>
+<li>Paso 1: estabilizar todos los layouts para que no haya bloques cortados, textos ocultos o controles superpuestos en ninguna resolucion.</li>
+<li>Paso 2: definir un lenguaje visual unico para tablas, formularios, tarjetas y mensajes del sistema.</li>
+<li>Paso 3: mejorar la experiencia del administrador en usuarios y asignaciones, porque es el punto que mantiene coherente el resto de flujos.</li>
+<li>Paso 4: reforzar el detalle clinico del doctor con mejor visualizacion de evolucion y contexto del paciente activo.</li>
+<li>Paso 5: simplificar la experiencia del paciente para que entienda mejor su medicacion, sus mediciones y el valor de los informes.</li>
+<li>Paso 6: una vez estabilizada la interfaz, preparar la migracion futura desde JSON a MySQL manteniendo contratos de repositorio y servicios.</li>
+</ul>
+
+<h2>6. Conclusión</h2>
+<p>La aplicacion ya cubre los flujos esenciales, pero todavia necesita una fase clara de refinamiento de experiencia por rol.</p>
+<p>El mayor retorno inmediato vendra de tres focos: consistencia visual, legibilidad de formularios y claridad de navegacion segun el usuario activo.</p>
+<p>Con ese pulido, MediTrack pasaria de ser una base funcional prometedora a una demo academico-profesional mucho mas convincente.</p>
+
+<div class="footer">Documento generado para planificar mejoras de MediTrack - 06/04/2026</div>
+</body>
+</html>

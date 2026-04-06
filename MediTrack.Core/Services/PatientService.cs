@@ -1,0 +1,73 @@
+using MediTrack.Core.DTOs;
+using MediTrack.Core.Interfaces.Repositories;
+using MediTrack.Core.Interfaces.Services;
+using MediTrack.Core.Models;
+
+namespace MediTrack.Core.Services;
+
+public class PatientService(
+    IPatientRepository patientRepository,
+    IUserRepository userRepository,
+    IDoctorPatientAssignmentRepository assignmentRepository,
+    IPatientDiseaseRepository patientDiseaseRepository,
+    IChronicDiseaseRepository chronicDiseaseRepository) : IPatientService
+{
+    public Task<List<Patient>> GetAllAsync() => patientRepository.GetAllAsync();
+
+    public async Task<Patient?> GetByUserIdAsync(Guid userId) =>
+        (await patientRepository.GetAllAsync()).FirstOrDefault(p => p.IdUsuario == userId);
+
+    public async Task<OperationResult> UpdateAsync(Patient patient)
+    {
+        var patients = await patientRepository.GetAllAsync();
+        var existing = patients.FirstOrDefault(p => p.IdUsuario == patient.IdUsuario);
+        if (existing == null)
+        {
+            return OperationResult.Fail("No se encontró el perfil del paciente.");
+        }
+
+        existing.FechaNacimiento = patient.FechaNacimiento;
+        existing.Telefono = patient.Telefono.Trim();
+        existing.Direccion = patient.Direccion.Trim();
+        existing.ObservacionesGenerales = patient.ObservacionesGenerales.Trim();
+        await patientRepository.SaveAllAsync(patients);
+        return OperationResult.Ok("Perfil actualizado.");
+    }
+
+    public async Task<List<PatientSummaryDto>> GetAssignedPatientsSummaryAsync(Guid doctorId)
+    {
+        var assignments = await assignmentRepository.GetAllAsync();
+        var patientIds = assignments
+            .Where(a => a.Activa)
+            .GroupBy(a => a.PacienteId)
+            .Select(group => group.OrderByDescending(a => a.FechaAsignacion).ThenByDescending(a => a.Id).First())
+            .Where(a => a.DoctorId == doctorId)
+            .Select(a => a.PacienteId)
+            .ToHashSet();
+        var users = await userRepository.GetAllAsync();
+        var patients = await patientRepository.GetAllAsync();
+        var patientDiseases = await patientDiseaseRepository.GetAllAsync();
+        var diseases = await chronicDiseaseRepository.GetAllAsync();
+
+        return patients
+            .Where(p => patientIds.Contains(p.IdUsuario))
+            .Join(users, p => p.IdUsuario, u => u.Id, (p, u) => new { Profile = p, User = u })
+            .Select(item =>
+            {
+                var diseaseNames = patientDiseases
+                    .Where(pd => pd.PacienteId == item.Profile.IdUsuario)
+                    .Join(diseases, pd => pd.EnfermedadId, d => d.Id, (_, d) => d.Nombre);
+
+                return new PatientSummaryDto
+                {
+                    PacienteId = item.Profile.IdUsuario,
+                    NombreCompleto = item.User.NombreCompleto,
+                    Email = item.User.Email,
+                    Telefono = item.Profile.Telefono,
+                    Enfermedades = string.Join(", ", diseaseNames)
+                };
+            })
+            .OrderBy(x => x.NombreCompleto)
+            .ToList();
+    }
+}

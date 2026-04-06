@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="MediTrack.Core/MediTrack.Core.csproj" />
+  <Project Path="MediTrack.Data/MediTrack.Data.csproj" />
+  <Project Path="MediTrack.WinForms/MediTrack.WinForms.csproj" />
+</Solution>
