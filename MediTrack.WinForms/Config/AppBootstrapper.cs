@@ -50,7 +50,8 @@ public static class AppBootstrapper
             medicationRepository,
             measurementRepository,
             medicalNoteRepository,
-            assignmentRepository);
+            assignmentRepository,
+            reportRepository);
 
         await seeder.SeedAsync();
 

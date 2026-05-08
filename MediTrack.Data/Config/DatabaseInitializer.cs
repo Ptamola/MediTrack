@@ -45,6 +45,9 @@ public class DatabaseInitializer
             command.CommandText = sql;
             await command.ExecuteNonQueryAsync();
         }
+
+        await EnsurePatientProfileColumnsAsync(connection);
+        await EnsurePatientDiseaseStatusColumnsAsync(connection);
     }
 
     private static IEnumerable<string> GetCreateTableStatements()
@@ -73,6 +76,18 @@ public class DatabaseInitializer
                 Telefono VARCHAR(30) NULL,
                 Direccion VARCHAR(300) NULL,
                 ObservacionesGenerales TEXT NULL,
+                DniNie VARCHAR(30) NULL,
+                Sexo VARCHAR(30) NULL,
+                GrupoSanguineo VARCHAR(10) NULL,
+                AlturaCm DECIMAL(5,2) NULL,
+                PesoKg DECIMAL(5,2) NULL,
+                Alergias TEXT NULL,
+                AntecedentesMedicos TEXT NULL,
+                ContactoEmergenciaNombre VARCHAR(150) NULL,
+                ContactoEmergenciaTelefono VARCHAR(30) NULL,
+                SeguroMedico VARCHAR(120) NULL,
+                NumeroTarjetaSanitaria VARCHAR(80) NULL,
+                FotoRuta VARCHAR(300) NULL,
                 PRIMARY KEY (IdUsuario),
                 CONSTRAINT fk_pacientes_usuarios
                     FOREIGN KEY (IdUsuario) REFERENCES usuarios(Id)
@@ -118,6 +133,8 @@ public class DatabaseInitializer
                 PacienteId CHAR(36) NOT NULL,
                 EnfermedadId CHAR(36) NOT NULL,
                 FechaDiagnostico DATE NOT NULL,
+                FechaFin DATE NULL,
+                Activa TINYINT(1) NOT NULL DEFAULT 1,
                 Observaciones TEXT NULL,
                 PRIMARY KEY (Id),
                 KEY ix_paciente_enfermedad_paciente (PacienteId),
@@ -240,5 +257,75 @@ public class DatabaseInitializer
         }
 
         return identifier.Replace("`", "``");
+    }
+
+    private async Task EnsurePatientProfileColumnsAsync(MySqlConnection connection)
+    {
+        var columns = new (string Name, string Definition)[]
+        {
+            ("DniNie", "VARCHAR(30) NULL"),
+            ("Sexo", "VARCHAR(30) NULL"),
+            ("GrupoSanguineo", "VARCHAR(10) NULL"),
+            ("AlturaCm", "DECIMAL(5,2) NULL"),
+            ("PesoKg", "DECIMAL(5,2) NULL"),
+            ("Alergias", "TEXT NULL"),
+            ("AntecedentesMedicos", "TEXT NULL"),
+            ("ContactoEmergenciaNombre", "VARCHAR(150) NULL"),
+            ("ContactoEmergenciaTelefono", "VARCHAR(30) NULL"),
+            ("SeguroMedico", "VARCHAR(120) NULL"),
+            ("NumeroTarjetaSanitaria", "VARCHAR(80) NULL"),
+            ("FotoRuta", "VARCHAR(300) NULL")
+        };
+
+        foreach (var column in columns)
+        {
+            if (await ColumnExistsAsync(connection, "pacientes", column.Name))
+            {
+                continue;
+            }
+
+            await using var command = connection.CreateCommand();
+            command.CommandText = $"ALTER TABLE pacientes ADD COLUMN `{column.Name}` {column.Definition};";
+            await command.ExecuteNonQueryAsync();
+        }
+    }
+
+    private async Task<bool> ColumnExistsAsync(MySqlConnection connection, string tableName, string columnName)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT COUNT(*)
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = @SchemaName
+              AND TABLE_NAME = @TableName
+              AND COLUMN_NAME = @ColumnName;
+            """;
+        command.Parameters.AddWithValue("@SchemaName", _settings.DatabaseName);
+        command.Parameters.AddWithValue("@TableName", tableName);
+        command.Parameters.AddWithValue("@ColumnName", columnName);
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
+    }
+
+    private async Task EnsurePatientDiseaseStatusColumnsAsync(MySqlConnection connection)
+    {
+        var columns = new (string Name, string Definition)[]
+        {
+            ("FechaFin", "DATE NULL"),
+            ("Activa", "TINYINT(1) NOT NULL DEFAULT 1")
+        };
+
+        foreach (var column in columns)
+        {
+            if (await ColumnExistsAsync(connection, "paciente_enfermedad", column.Name))
+            {
+                continue;
+            }
+
+            await using var command = connection.CreateCommand();
+            command.CommandText = $"ALTER TABLE paciente_enfermedad ADD COLUMN `{column.Name}` {column.Definition};";
+            await command.ExecuteNonQueryAsync();
+        }
     }
 }

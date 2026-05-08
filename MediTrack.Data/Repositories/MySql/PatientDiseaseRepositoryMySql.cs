@@ -9,18 +9,20 @@ public class PatientDiseaseRepositoryMySql(DatabaseConnectionFactory connectionF
     : MySqlRepositoryBase<PatientDisease>(connectionFactory), IPatientDiseaseRepository
 {
     protected override string SelectSql => """
-        SELECT Id, PacienteId, EnfermedadId, FechaDiagnostico, Observaciones
+        SELECT Id, PacienteId, EnfermedadId, FechaDiagnostico, FechaFin, Activa, Observaciones
         FROM paciente_enfermedad
         ORDER BY FechaDiagnostico DESC;
         """;
 
     protected override string InsertSql => """
-        INSERT INTO paciente_enfermedad (Id, PacienteId, EnfermedadId, FechaDiagnostico, Observaciones)
-        VALUES (@Id, @PacienteId, @EnfermedadId, @FechaDiagnostico, @Observaciones)
+        INSERT INTO paciente_enfermedad (Id, PacienteId, EnfermedadId, FechaDiagnostico, FechaFin, Activa, Observaciones)
+        VALUES (@Id, @PacienteId, @EnfermedadId, @FechaDiagnostico, @FechaFin, @Activa, @Observaciones)
         ON DUPLICATE KEY UPDATE
             PacienteId = VALUES(PacienteId),
             EnfermedadId = VALUES(EnfermedadId),
             FechaDiagnostico = VALUES(FechaDiagnostico),
+            FechaFin = VALUES(FechaFin),
+            Activa = VALUES(Activa),
             Observaciones = VALUES(Observaciones);
         """;
 
@@ -30,6 +32,8 @@ public class PatientDiseaseRepositoryMySql(DatabaseConnectionFactory connectionF
         PacienteId = GetGuid(reader, "PacienteId"),
         EnfermedadId = GetGuid(reader, "EnfermedadId"),
         FechaDiagnostico = GetDateTime(reader, "FechaDiagnostico"),
+        FechaFin = GetNullableDateTime(reader, "FechaFin"),
+        Activa = GetBoolean(reader, "Activa"),
         Observaciones = GetString(reader, "Observaciones")
     };
 
@@ -39,6 +43,8 @@ public class PatientDiseaseRepositoryMySql(DatabaseConnectionFactory connectionF
         AddParameter(command, "@PacienteId", item.PacienteId.ToString());
         AddParameter(command, "@EnfermedadId", item.EnfermedadId.ToString());
         AddParameter(command, "@FechaDiagnostico", item.FechaDiagnostico.Date);
+        AddParameter(command, "@FechaFin", item.FechaFin?.Date);
+        AddParameter(command, "@Activa", item.Activa);
         AddParameter(command, "@Observaciones", item.Observaciones);
     }
 }

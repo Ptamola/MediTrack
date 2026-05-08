@@ -27,23 +27,68 @@ public class MedicacionForm : BaseModuleForm
     {
         _services = services;
         _session = session;
+        ConfigureGrid();
 
         var page = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2
+            ColumnCount = 2,
+            RowCount = 1,
+            AutoScroll = true,
+            BackColor = AppTheme.Background
         };
-        page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36));
-        page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 64));
 
         var formCard = BuildFormCard();
         var gridCard = BuildGridCard();
 
-        page.Controls.Add(formCard, 0, 0);
-        page.Controls.Add(gridCard, 1, 0);
+        var stacked = false;
+        ApplyResponsiveLayout(page, formCard, gridCard, stacked);
+        page.Resize += (_, _) =>
+        {
+            var shouldStack = page.ClientSize.Width < 980;
+            if (shouldStack == stacked)
+            {
+                return;
+            }
+
+            stacked = shouldStack;
+            ApplyResponsiveLayout(page, formCard, gridCard, stacked);
+        };
+
         ContentPanel.Controls.Add(page);
 
         Load += async (_, _) => await InitializeAsync();
+    }
+
+    private static void ApplyResponsiveLayout(TableLayoutPanel page, Control formCard, Control gridCard, bool stacked)
+    {
+        page.SuspendLayout();
+        page.Controls.Clear();
+        page.ColumnStyles.Clear();
+        page.RowStyles.Clear();
+
+        if (stacked)
+        {
+            page.ColumnCount = 1;
+            page.RowCount = 2;
+            page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 680));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 460));
+            page.Controls.Add(formCard, 0, 0);
+            page.Controls.Add(gridCard, 0, 1);
+        }
+        else
+        {
+            page.ColumnCount = 2;
+            page.RowCount = 1;
+            page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36));
+            page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 64));
+            page.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            page.Controls.Add(formCard, 0, 0);
+            page.Controls.Add(gridCard, 1, 0);
+        }
+
+        page.ResumeLayout();
     }
 
     private Control BuildFormCard()
@@ -53,12 +98,17 @@ public class MedicacionForm : BaseModuleForm
         var form = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2
+            ColumnCount = 2,
+            AutoScroll = true,
+            BackColor = AppTheme.Surface
         };
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-        form.Controls.Add(UiFactory.CreateSectionTitle("Ficha de medicamento"), 0, 0);
-        form.SetColumnSpan(form.GetControlFromPosition(0, 0)!, 2);
+        _txtObservaciones.Height = 120;
+
+        var title = UiFactory.CreateSectionTitle("Ficha de medicamento");
+        form.Controls.Add(title, 0, 0);
+        form.SetColumnSpan(title, 2);
         form.Controls.Add(_lblHint, 0, 1);
         form.SetColumnSpan(_lblHint, 2);
         var row = 2;
@@ -97,7 +147,14 @@ public class MedicacionForm : BaseModuleForm
         form.SetColumnSpan(_txtObservaciones, 2);
         row++;
 
-        var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
+        var actions = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            WrapContents = true,
+            FlowDirection = FlowDirection.LeftToRight,
+            Margin = new Padding(0, 8, 0, 0)
+        };
         var btnSave = UiFactory.CreateButton("Guardar medicamento");
         btnSave.Click += async (_, _) => await SaveAsync();
         var btnDelete = UiFactory.CreateDangerButton("Eliminar seleccionado");
@@ -116,6 +173,7 @@ public class MedicacionForm : BaseModuleForm
         var gridCard = AppTheme.CreateCardPanel();
         gridCard.Padding = new Padding(20);
         var gridLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
+        gridLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         gridLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         gridLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         gridLayout.Controls.Add(UiFactory.CreateSectionTitle("Plan de medicación"), 0, 0);
@@ -216,10 +274,7 @@ public class MedicacionForm : BaseModuleForm
             m.Activo
         }).ToList();
 
-        if (_grid.Columns.Contains("Id"))
-        {
-            _grid.Columns["Id"].Visible = false;
-        }
+        ApplyGridColumns();
     }
 
     private void LoadSelected(int rowIndex)
@@ -252,5 +307,56 @@ public class MedicacionForm : BaseModuleForm
         _dtpInicio.Value = DateTime.Today;
         _dtpFin.Value = DateTime.Today;
         _chkActivo.Checked = true;
+    }
+
+    private void ConfigureGrid()
+    {
+        _grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        _grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+        _grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        _grid.RowTemplate.MinimumHeight = 42;
+        _grid.ScrollBars = ScrollBars.Both;
+    }
+
+    private void ApplyGridColumns()
+    {
+        if (_grid.Columns.Contains("Id"))
+        {
+            _grid.Columns["Id"].Visible = false;
+        }
+
+        SetFillColumn("Nombre", 24, 150);
+        SetFillColumn("Dosis", 14, 110);
+        SetFillColumn("Frecuencia", 24, 160);
+        SetFillColumn("Horario", 18, 140);
+        SetFixedColumn("Inicio", 105);
+        SetFixedColumn("Fin", 105);
+        SetFixedColumn("Activo", 80);
+    }
+
+    private void SetFillColumn(string name, float fillWeight, int minWidth)
+    {
+        if (_grid.Columns[name] is not { } column)
+        {
+            return;
+        }
+
+        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+        column.FillWeight = fillWeight;
+        column.MinimumWidth = minWidth;
+        column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+    }
+
+    private void SetFixedColumn(string name, int width)
+    {
+        if (_grid.Columns[name] is not { } column)
+        {
+            return;
+        }
+
+        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+        column.Width = width;
+        column.MinimumWidth = width - 10;
+        column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
     }
 }

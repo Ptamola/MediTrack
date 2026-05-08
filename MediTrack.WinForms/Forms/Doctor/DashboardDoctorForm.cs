@@ -17,8 +17,9 @@ public class DashboardDoctorForm : BaseModuleForm
     {
         _services = services;
         _session = session;
+        ConfigureGrid();
 
-        var page = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
+        var page = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1, AutoScroll = true };
         page.RowStyles.Add(new RowStyle(SizeType.Absolute, 140));
         page.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
@@ -93,9 +94,41 @@ public class DashboardDoctorForm : BaseModuleForm
         {
             _grid.Columns["PacienteId"].Visible = false;
         }
+        ApplyGridColumns();
 
         _lblAssigned.Text = items.Count.ToString();
         _lblSelected.Text = items.FirstOrDefault(x => x.PacienteId == _session.SelectedPatientId)?.NombreCompleto ?? "-";
         _lblWithDiseases.Text = items.Count(x => !string.IsNullOrWhiteSpace(x.Enfermedades)).ToString();
+    }
+
+    private void ConfigureGrid()
+    {
+        _grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        _grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+        _grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        _grid.RowTemplate.MinimumHeight = 44;
+        _grid.ScrollBars = ScrollBars.Vertical;
+    }
+
+    private void ApplyGridColumns()
+    {
+        SetFillColumn("NombreCompleto", "Paciente", 28, 190);
+        SetFillColumn("Email", "Email", 24, 190);
+        SetFillColumn("Telefono", "Teléfono", 16, 120);
+        SetFillColumn("Enfermedades", "Enfermedades", 42, 260);
+    }
+
+    private void SetFillColumn(string name, string header, float fillWeight, int minimumWidth)
+    {
+        if (_grid.Columns[name] is not { } column)
+        {
+            return;
+        }
+
+        column.HeaderText = header;
+        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+        column.FillWeight = fillWeight;
+        column.MinimumWidth = minimumWidth;
+        column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
     }
 }

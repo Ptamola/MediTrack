@@ -30,6 +30,18 @@ public class PatientService(
         existing.Telefono = patient.Telefono.Trim();
         existing.Direccion = patient.Direccion.Trim();
         existing.ObservacionesGenerales = patient.ObservacionesGenerales.Trim();
+        existing.DniNie = patient.DniNie.Trim();
+        existing.Sexo = patient.Sexo.Trim();
+        existing.GrupoSanguineo = patient.GrupoSanguineo.Trim();
+        existing.AlturaCm = patient.AlturaCm;
+        existing.PesoKg = patient.PesoKg;
+        existing.Alergias = patient.Alergias.Trim();
+        existing.AntecedentesMedicos = patient.AntecedentesMedicos.Trim();
+        existing.ContactoEmergenciaNombre = patient.ContactoEmergenciaNombre.Trim();
+        existing.ContactoEmergenciaTelefono = patient.ContactoEmergenciaTelefono.Trim();
+        existing.SeguroMedico = patient.SeguroMedico.Trim();
+        existing.NumeroTarjetaSanitaria = patient.NumeroTarjetaSanitaria.Trim();
+        existing.FotoRuta = patient.FotoRuta.Trim();
         await patientRepository.SaveAllAsync(patients);
         return OperationResult.Ok("Perfil actualizado.");
     }

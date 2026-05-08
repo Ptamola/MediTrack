@@ -24,9 +24,42 @@ public class DiseaseService(
         }
 
         item.Id = Guid.NewGuid();
+        item.Activa = true;
+        item.FechaFin = null;
         relations.Add(item);
         await patientDiseaseRepository.SaveAllAsync(relations);
         return OperationResult.Ok("Enfermedad asignada correctamente.");
+    }
+
+    public async Task<OperationResult> AssignDiseaseByNameAsync(Guid patientId, string diseaseName, DateTime diagnosisDate, string observations)
+    {
+        var normalizedName = diseaseName.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            return OperationResult.Fail("Introduce o selecciona una enfermedad válida.");
+        }
+
+        var diseases = await chronicDiseaseRepository.GetAllAsync();
+        var disease = diseases.FirstOrDefault(d => string.Equals(d.Nombre.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
+        if (disease == null)
+        {
+            disease = new ChronicDisease
+            {
+                Id = Guid.NewGuid(),
+                Nombre = normalizedName,
+                Descripcion = "Enfermedad creada desde la ficha clínica."
+            };
+            diseases.Add(disease);
+            await chronicDiseaseRepository.SaveAllAsync(diseases);
+        }
+
+        return await AssignDiseaseAsync(new PatientDisease
+        {
+            PacienteId = patientId,
+            EnfermedadId = disease.Id,
+            FechaDiagnostico = diagnosisDate.Date,
+            Observaciones = observations
+        });
     }
 
     public async Task<OperationResult> UpdateAsync(PatientDisease item)
@@ -39,8 +72,10 @@ public class DiseaseService(
         }
 
         existing.FechaDiagnostico = item.FechaDiagnostico;
+        existing.FechaFin = item.Activa ? null : item.FechaFin?.Date;
+        existing.Activa = item.Activa;
         existing.Observaciones = item.Observaciones.Trim();
         await patientDiseaseRepository.SaveAllAsync(relations);
-        return OperationResult.Ok("Observaciones actualizadas.");
+        return OperationResult.Ok("Enfermedad actualizada.");
     }
 }

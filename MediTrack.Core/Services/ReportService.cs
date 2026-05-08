@@ -1,4 +1,4 @@
-using MediTrack.Core.DTOs;
+﻿using MediTrack.Core.DTOs;
 using MediTrack.Core.Interfaces.Repositories;
 using MediTrack.Core.Interfaces.Services;
 using MediTrack.Core.Models;
@@ -35,6 +35,7 @@ public class ReportService(
         var catalog = await diseaseService.GetCatalogAsync();
         var patientDiseases = await diseaseService.GetPatientDiseasesAsync(patientId);
         var diseases = patientDiseases
+            .Where(pd => pd.Activa)
             .Join(catalog, pd => pd.EnfermedadId, d => d.Id, (_, d) => d)
             .DistinctBy(d => d.Id)
             .ToList();
@@ -50,18 +51,20 @@ public class ReportService(
             FechaGeneracion = DateTime.Now,
             FechaInicioPeriodo = fechaInicio,
             FechaFinPeriodo = fechaFin,
-            Resumen = BuildSummary(diseases.Count, medications.Count, measurements.Count, notes.Count)
+            Resumen = BuildSummary(patientDiseases.Count(d => d.Activa), patientDiseases.Count(d => !d.Activa), medications.Count, measurements.Count, notes.Count)
         };
 
         var result = new GeneratedReportResult
         {
             Reporte = report,
-            Titulo = $"Informe clínico - {patientUser?.NombreCompleto}",
+            Titulo = $"Informe clÃ­nico - {patientUser?.NombreCompleto}",
             PacienteUsuario = patientUser,
             PacientePerfil = patientProfile,
             DoctorAsignado = assignedDoctor,
             DoctoresAnteriores = previousDoctors,
+            CatalogoEnfermedades = catalog,
             Enfermedades = diseases,
+            EnfermedadesPaciente = patientDiseases,
             Medicamentos = medications,
             Mediciones = measurements,
             Notas = notes
@@ -82,7 +85,7 @@ public class ReportService(
     {
         if (string.IsNullOrWhiteSpace(outputFilePath))
         {
-            return OperationResult.Fail("Debes indicar una ruta de archivo válida.");
+            return OperationResult.Fail("Debes indicar una ruta de archivo vÃ¡lida.");
         }
 
         var directory = Path.GetDirectoryName(outputFilePath);
@@ -110,17 +113,31 @@ public class ReportService(
                     column.Item().Text($"Periodo: {reportResult.Reporte.FechaInicioPeriodo:dd/MM/yyyy} - {reportResult.Reporte.FechaFinPeriodo:dd/MM/yyyy}");
                     column.Item().Text($"Resumen: {reportResult.Reporte.Resumen}");
 
-                    column.Item().Text("Enfermedades").Bold();
-                    foreach (var disease in reportResult.Enfermedades.DefaultIfEmpty())
+                    var diseaseCatalog = reportResult.CatalogoEnfermedades.ToDictionary(d => d.Id, d => d.Nombre);
+                    var activeDiseases = reportResult.EnfermedadesPaciente.Where(d => d.Activa).ToList();
+                    var resolvedDiseases = reportResult.EnfermedadesPaciente.Where(d => !d.Activa).ToList();
+
+                    column.Item().Text("Enfermedades activas").Bold();
+                    foreach (var disease in activeDiseases.DefaultIfEmpty())
                     {
-                        column.Item().Text(disease == null ? "Sin enfermedades registradas." : $"- {disease.Nombre}");
+                        column.Item().Text(disease == null
+                            ? "Sin enfermedades activas."
+                            : $"- {GetDiseaseName(diseaseCatalog, disease.EnfermedadId)} desde {disease.FechaDiagnostico:dd/MM/yyyy}");
+                    }
+
+                    column.Item().Text("Enfermedades superadas").Bold();
+                    foreach (var disease in resolvedDiseases.DefaultIfEmpty())
+                    {
+                        column.Item().Text(disease == null
+                            ? "Sin enfermedades superadas registradas."
+                            : $"- {GetDiseaseName(diseaseCatalog, disease.EnfermedadId)}: {disease.FechaDiagnostico:dd/MM/yyyy} - {disease.FechaFin:dd/MM/yyyy}, superada.");
                     }
 
                     column.Item().Text("Medicamentos activos").Bold();
                     foreach (var medication in reportResult.Medicamentos.DefaultIfEmpty())
                     {
                         column.Item().Text(medication == null
-                            ? "Sin medicación activa."
+                            ? "Sin medicaciÃ³n activa."
                             : $"- {medication.Nombre} | {medication.Dosis} | {medication.Frecuencia} | {medication.Horario}");
                     }
 
@@ -149,11 +166,11 @@ public class ReportService(
                         }
                     });
 
-                    column.Item().Text("Notas médicas").Bold();
+                    column.Item().Text("Notas mÃ©dicas").Bold();
                     foreach (var note in reportResult.Notas.Take(10).DefaultIfEmpty())
                     {
                         column.Item().Text(note == null
-                            ? "Sin notas médicas."
+                            ? "Sin notas mÃ©dicas."
                             : $"- {note.FechaHora:dd/MM/yyyy HH:mm} | {note.Titulo}: {note.Contenido}");
                     }
                 });
@@ -182,8 +199,11 @@ public class ReportService(
         return OperationResult.Ok($"PDF exportado correctamente en: {outputFilePath}");
     }
 
-    private static string BuildSummary(int diseasesCount, int medicationCount, int measurementCount, int notesCount)
+    private static string BuildSummary(int activeDiseasesCount, int resolvedDiseasesCount, int medicationCount, int measurementCount, int notesCount)
     {
-        return $"El paciente presenta {diseasesCount} enfermedad(es) activa(s), {medicationCount} medicamento(s) activo(s), {measurementCount} medición(es) registradas en el período y {notesCount} nota(s) médica(s) disponibles.";
+        return $"El paciente presenta {activeDiseasesCount} enfermedad(es) activa(s), {resolvedDiseasesCount} enfermedad(es) superada(s), {medicationCount} medicamento(s) activo(s), {measurementCount} medición(es) registradas en el período y {notesCount} nota(s) médica(s) disponibles.";
     }
+
+    private static string GetDiseaseName(Dictionary<Guid, string> catalog, Guid diseaseId) =>
+        catalog.TryGetValue(diseaseId, out var name) ? name : "Enfermedad no disponible";
 }

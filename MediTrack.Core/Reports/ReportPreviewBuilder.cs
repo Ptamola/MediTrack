@@ -26,11 +26,27 @@ public static class ReportPreviewBuilder
         sb.AppendLine($"Periodo: {data.Reporte.FechaInicioPeriodo:dd/MM/yyyy} - {data.Reporte.FechaFinPeriodo:dd/MM/yyyy}");
         sb.AppendLine($"Fecha de generación: {data.Reporte.FechaGeneracion:dd/MM/yyyy HH:mm}");
         sb.AppendLine();
+        var diseaseCatalog = data.CatalogoEnfermedades.ToDictionary(d => d.Id, d => d.Nombre);
+        var activeDiseases = data.EnfermedadesPaciente.Where(d => d.Activa).ToList();
+        var resolvedDiseases = data.EnfermedadesPaciente.Where(d => !d.Activa).ToList();
+
         sb.AppendLine("Enfermedades activas");
         sb.AppendLine("-------------------");
-        foreach (var enfermedad in data.Enfermedades.DefaultIfEmpty())
+        foreach (var enfermedad in activeDiseases.DefaultIfEmpty())
         {
-            sb.AppendLine(enfermedad == null ? "Sin enfermedades registradas." : $"- {enfermedad.Nombre}");
+            sb.AppendLine(enfermedad == null
+                ? "Sin enfermedades activas."
+                : $"- {GetDiseaseName(diseaseCatalog, enfermedad.EnfermedadId)} desde {enfermedad.FechaDiagnostico:dd/MM/yyyy}");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("Enfermedades superadas");
+        sb.AppendLine("----------------------");
+        foreach (var enfermedad in resolvedDiseases.DefaultIfEmpty())
+        {
+            sb.AppendLine(enfermedad == null
+                ? "Sin enfermedades superadas registradas."
+                : $"- {GetDiseaseName(diseaseCatalog, enfermedad.EnfermedadId)}: {enfermedad.FechaDiagnostico:dd/MM/yyyy} - {enfermedad.FechaFin:dd/MM/yyyy}, superada.");
         }
 
         sb.AppendLine();
@@ -70,4 +86,7 @@ public static class ReportPreviewBuilder
 
         return sb.ToString();
     }
+
+    private static string GetDiseaseName(Dictionary<Guid, string> catalog, Guid diseaseId) =>
+        catalog.TryGetValue(diseaseId, out var name) ? name : "Enfermedad no disponible";
 }

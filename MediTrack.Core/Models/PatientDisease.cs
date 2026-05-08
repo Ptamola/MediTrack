@@ -6,5 +6,7 @@ public class PatientDisease
     public Guid PacienteId { get; set; }
     public Guid EnfermedadId { get; set; }
     public DateTime FechaDiagnostico { get; set; } = DateTime.Today;
+    public DateTime? FechaFin { get; set; }
+    public bool Activa { get; set; } = true;
     public string Observaciones { get; set; } = string.Empty;
 }

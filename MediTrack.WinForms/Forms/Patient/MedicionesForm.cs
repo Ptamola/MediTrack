@@ -25,36 +25,90 @@ public class MedicionesForm : BaseModuleForm
     {
         _services = services;
         _session = session;
+        ConfigureGrid();
 
         var page = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 2,
-            RowCount = 2
+            RowCount = 2,
+            AutoScroll = true,
+            BackColor = AppTheme.Background
         };
-        page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
-        page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 66));
-        page.RowStyles.Add(new RowStyle(SizeType.Percent, 58));
-        page.RowStyles.Add(new RowStyle(SizeType.Percent, 42));
 
         var formCard = BuildFormCard();
         var gridCard = BuildGridCard();
         var chartCard = BuildChartCard();
 
-        page.Controls.Add(formCard, 0, 0);
-        page.SetRowSpan(formCard, 2);
-        page.Controls.Add(gridCard, 1, 0);
-        page.Controls.Add(chartCard, 1, 1);
+        var stacked = false;
+        ApplyResponsiveLayout(page, formCard, gridCard, chartCard, stacked);
+        page.Resize += (_, _) =>
+        {
+            var shouldStack = page.ClientSize.Width < 980;
+            if (shouldStack == stacked)
+            {
+                return;
+            }
+
+            stacked = shouldStack;
+            ApplyResponsiveLayout(page, formCard, gridCard, chartCard, stacked);
+        };
 
         ContentPanel.Controls.Add(page);
         Load += async (_, _) => await InitializeAsync();
+    }
+
+    private static void ApplyResponsiveLayout(TableLayoutPanel page, Control formCard, Control gridCard, Control chartCard, bool stacked)
+    {
+        page.SuspendLayout();
+        page.Controls.Clear();
+        page.ColumnStyles.Clear();
+        page.RowStyles.Clear();
+
+        if (stacked)
+        {
+            page.ColumnCount = 1;
+            page.RowCount = 3;
+            page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 620));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 430));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 380));
+            page.Controls.Add(formCard, 0, 0);
+            page.Controls.Add(gridCard, 0, 1);
+            page.Controls.Add(chartCard, 0, 2);
+        }
+        else
+        {
+            page.ColumnCount = 2;
+            page.RowCount = 2;
+            page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
+            page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 66));
+            page.RowStyles.Add(new RowStyle(SizeType.Percent, 58));
+            page.RowStyles.Add(new RowStyle(SizeType.Percent, 42));
+            page.Controls.Add(formCard, 0, 0);
+            page.SetRowSpan(formCard, 2);
+            page.Controls.Add(gridCard, 1, 0);
+            page.Controls.Add(chartCard, 1, 1);
+        }
+
+        page.ResumeLayout();
     }
 
     private Control BuildFormCard()
     {
         var left = AppTheme.CreateCardPanel();
         left.Padding = new Padding(24);
-        var form = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1 };
+
+        var form = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            AutoScroll = true,
+            BackColor = AppTheme.Surface
+        };
+        form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        _txtObservaciones.Height = 120;
+
         form.Controls.Add(UiFactory.CreateSectionTitle("Nueva medición"), 0, 0);
         form.Controls.Add(_lblHint, 0, 1);
         var row = 2;
@@ -86,6 +140,7 @@ public class MedicionesForm : BaseModuleForm
         var btnAdd = UiFactory.CreateButton("Registrar medición");
         btnAdd.Click += async (_, _) => await SaveAsync();
         form.Controls.Add(btnAdd, 0, row++);
+
         left.Controls.Add(form);
         return left;
     }
@@ -95,6 +150,7 @@ public class MedicionesForm : BaseModuleForm
         var gridCard = AppTheme.CreateCardPanel();
         gridCard.Padding = new Padding(20);
         var gridLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1 };
+        gridLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         gridLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         gridLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         gridLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
@@ -104,7 +160,7 @@ public class MedicionesForm : BaseModuleForm
             Dock = DockStyle.Top,
             AutoSize = true,
             FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
+            WrapContents = true,
             Margin = new Padding(0, 0, 0, 12)
         };
 
@@ -129,6 +185,7 @@ public class MedicionesForm : BaseModuleForm
         var chartCard = AppTheme.CreateCardPanel();
         chartCard.Padding = new Padding(20);
         var chartLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
+        chartLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         chartLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         chartLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         chartLayout.Controls.Add(UiFactory.CreateSectionTitle("Evolución visual"), 0, 0);
@@ -214,8 +271,51 @@ public class MedicionesForm : BaseModuleForm
             Valor = $"{m.Valor} {m.Unidad}",
             m.Observaciones
         }).ToList();
+        ApplyGridColumns();
 
         _chart.Measurements = items;
         _chart.Invalidate();
+    }
+
+    private void ConfigureGrid()
+    {
+        _grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        _grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+        _grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        _grid.RowTemplate.MinimumHeight = 42;
+        _grid.ScrollBars = ScrollBars.Both;
+    }
+
+    private void ApplyGridColumns()
+    {
+        if (_grid.Columns["Fecha"] is { } fecha)
+        {
+            fecha.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            fecha.Width = 145;
+            fecha.MinimumWidth = 130;
+            fecha.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+        }
+
+        if (_grid.Columns["Tipo"] is { } tipo)
+        {
+            tipo.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            tipo.FillWeight = 22;
+            tipo.MinimumWidth = 140;
+        }
+
+        if (_grid.Columns["Valor"] is { } valor)
+        {
+            valor.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            valor.FillWeight = 18;
+            valor.MinimumWidth = 110;
+        }
+
+        if (_grid.Columns["Observaciones"] is { } observaciones)
+        {
+            observaciones.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            observaciones.FillWeight = 45;
+            observaciones.MinimumWidth = 220;
+            observaciones.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        }
     }
 }

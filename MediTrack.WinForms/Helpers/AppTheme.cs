@@ -106,6 +106,7 @@ public static class AppTheme
         grid.EnableHeadersVisualStyles = false;
         grid.Dock = DockStyle.Fill;
         grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+        grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         grid.GridColor = Border;
         grid.ColumnHeadersDefaultCellStyle.BackColor = Primary;
@@ -120,6 +121,13 @@ public static class AppTheme
         grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
         grid.DefaultCellStyle.SelectionForeColor = TextPrimary;
         grid.AlternatingRowsDefaultCellStyle.BackColor = SurfaceMuted;
+        grid.CellFormatting += (_, e) =>
+        {
+            if (e.Value is not null && e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                grid.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = e.Value.ToString();
+            }
+        };
     }
 
     public static void ApplyListStyle(ListBox listBox)

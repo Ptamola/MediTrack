@@ -8,5 +8,6 @@ public interface IDiseaseService
     Task<List<ChronicDisease>> GetCatalogAsync();
     Task<List<PatientDisease>> GetPatientDiseasesAsync(Guid patientId);
     Task<OperationResult> AssignDiseaseAsync(PatientDisease item);
+    Task<OperationResult> AssignDiseaseByNameAsync(Guid patientId, string diseaseName, DateTime diagnosisDate, string observations);
     Task<OperationResult> UpdateAsync(PatientDisease item);
 }

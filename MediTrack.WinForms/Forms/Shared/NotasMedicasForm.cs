@@ -16,27 +16,45 @@ public class NotasMedicasForm : BaseModuleForm
     private readonly DataGridView _grid = UiFactory.CreateGrid();
     private readonly Label _lblHint = UiFactory.CreateMutedLabel("Consulta el historial de notas y registra nuevas observaciones si eres doctor.");
 
-    public NotasMedicasForm(ApplicationServices services, AppSession session) : base("Notas medicas")
+    public NotasMedicasForm(ApplicationServices services, AppSession session) : base("Notas médicas")
     {
         _services = services;
         _session = session;
 
-        var split = new SplitContainer
-        {
-            Dock = DockStyle.Fill,
-            SplitterDistance = 360,
-            BackColor = AppTheme.Background
-        };
+        ConfigureNotesGrid();
+        _txtContenido.Height = 150;
 
+        var historyCard = CreateHistoryCard();
+        if (_session.CurrentUser?.Rol == UserRole.Paciente)
+        {
+            _lblHint.Text = "Estás viendo las notas visibles registradas por tu doctor.";
+            ContentPanel.Controls.Add(CreatePatientLayout(historyCard));
+        }
+        else
+        {
+            ContentPanel.Controls.Add(CreateDoctorLayout(CreateEditorCard(), historyCard));
+        }
+
+        Load += async (_, _) => await InitializeAsync();
+    }
+
+    private Control CreateEditorCard()
+    {
         var left = AppTheme.CreateCardPanel();
         left.Padding = new Padding(24);
         var form = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            AutoScroll = true
+            AutoScroll = true,
+            BackColor = AppTheme.Surface
         };
-        form.Controls.Add(UiFactory.CreateSectionTitle("Registro clinico"), 0, 0);
+        form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        _lblHint.AutoSize = false;
+        _lblHint.Dock = DockStyle.Fill;
+        _lblHint.Height = 56;
+
+        form.Controls.Add(UiFactory.CreateSectionTitle("Registro clínico"), 0, 0);
         form.Controls.Add(_lblHint, 0, 1);
         var row = 2;
 
@@ -56,7 +74,7 @@ public class NotasMedicasForm : BaseModuleForm
 
         if (_session.CurrentUser?.Rol == UserRole.Doctor)
         {
-            form.Controls.Add(UiFactory.CreateLabel("Titulo"), 0, row++);
+            form.Controls.Add(UiFactory.CreateLabel("Título"), 0, row++);
             form.Controls.Add(_txtTitulo, 0, row++);
             form.Controls.Add(UiFactory.CreateLabel("Contenido"), 0, row++);
             form.Controls.Add(_txtContenido, 0, row++);
@@ -68,7 +86,7 @@ public class NotasMedicasForm : BaseModuleForm
         }
         else if (_session.CurrentUser?.Rol == UserRole.Paciente)
         {
-            _lblHint.Text = "Estas viendo las notas visibles registradas por tu doctor.";
+            _lblHint.Text = "Estás viendo las notas visibles registradas por tu doctor.";
         }
         else
         {
@@ -76,21 +94,144 @@ public class NotasMedicasForm : BaseModuleForm
         }
 
         left.Controls.Add(form);
+        return left;
+    }
 
+    private Control CreateHistoryCard()
+    {
         var right = AppTheme.CreateCardPanel();
         right.Padding = new Padding(20);
-        var rightLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
+        var rightLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            RowCount = 2,
+            ColumnCount = 1,
+            BackColor = AppTheme.Surface
+        };
+        rightLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         rightLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         rightLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         rightLayout.Controls.Add(UiFactory.CreateSectionTitle("Historial de notas"), 0, 0);
         rightLayout.Controls.Add(_grid, 0, 1);
         right.Controls.Add(rightLayout);
+        return right;
+    }
 
-        split.Panel1.Controls.Add(left);
-        split.Panel2.Controls.Add(right);
-        ContentPanel.Controls.Add(split);
+    private static Control CreatePatientLayout(Control historyCard)
+    {
+        var layout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            AutoScroll = true,
+            BackColor = AppTheme.Background
+        };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        Load += async (_, _) => await InitializeAsync();
+        var intro = AppTheme.CreateCardPanel();
+        intro.Padding = new Padding(24);
+        var introLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            BackColor = AppTheme.Surface
+        };
+        introLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        introLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        introLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        introLayout.Controls.Add(UiFactory.CreateSectionTitle("Notas de tu seguimiento"), 0, 0);
+        introLayout.Controls.Add(CreateWrappedMutedLabel("Aquí puedes consultar únicamente las notas que tu doctor ha marcado como visibles para ti."), 0, 1);
+        intro.Controls.Add(introLayout);
+
+        layout.Controls.Add(intro, 0, 0);
+        layout.Controls.Add(historyCard, 0, 1);
+        return layout;
+    }
+
+    private static Control CreateDoctorLayout(Control editorCard, Control historyCard)
+    {
+        var layout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1,
+            AutoScroll = true,
+            BackColor = AppTheme.Background
+        };
+
+        var isStacked = false;
+        ApplyResponsiveLayout(layout, editorCard, historyCard, stacked: false);
+        layout.Resize += (_, _) =>
+        {
+            var shouldStack = layout.ClientSize.Width < 920;
+            if (shouldStack == isStacked)
+            {
+                return;
+            }
+
+            isStacked = shouldStack;
+            ApplyResponsiveLayout(layout, editorCard, historyCard, shouldStack);
+        };
+
+        return layout;
+    }
+
+    private static void ApplyResponsiveLayout(TableLayoutPanel layout, Control editorCard, Control historyCard, bool stacked)
+    {
+        layout.SuspendLayout();
+        layout.Controls.Clear();
+        layout.ColumnStyles.Clear();
+        layout.RowStyles.Clear();
+
+        if (stacked)
+        {
+            layout.ColumnCount = 1;
+            layout.RowCount = 2;
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 440));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            layout.Controls.Add(editorCard, 0, 0);
+            layout.Controls.Add(historyCard, 0, 1);
+        }
+        else
+        {
+            layout.ColumnCount = 2;
+            layout.RowCount = 1;
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 66));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            layout.Controls.Add(editorCard, 0, 0);
+            layout.Controls.Add(historyCard, 1, 0);
+        }
+
+        layout.ResumeLayout();
+    }
+
+    private static Label CreateWrappedMutedLabel(string text) => new()
+    {
+        Text = text,
+        Dock = DockStyle.Fill,
+        AutoSize = false,
+        Font = AppTheme.BodyFont,
+        ForeColor = AppTheme.TextSecondary,
+        TextAlign = ContentAlignment.TopLeft,
+        Margin = new Padding(0)
+    };
+
+    private void ConfigureNotesGrid()
+    {
+        _grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        _grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+        _grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        _grid.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
+        _grid.RowTemplate.MinimumHeight = 44;
+        _grid.ScrollBars = ScrollBars.Both;
+        _grid.AllowUserToResizeColumns = true;
+        _grid.AllowUserToResizeRows = true;
     }
 
     private async Task InitializeAsync()
@@ -105,7 +246,7 @@ public class NotasMedicasForm : BaseModuleForm
             PatientAccessHelper.ApplySelectedPatient(_cmbPacientes, _session);
             if (_session.CurrentUser?.Rol == UserRole.Doctor)
             {
-                _lblHint.Text = "Selecciona un paciente para registrar notas clinicas y compartirlas con el paciente si procede.";
+                _lblHint.Text = "Selecciona un paciente para registrar notas clínicas y compartirlas con el paciente si procede.";
             }
         }
 
@@ -152,7 +293,46 @@ public class NotasMedicasForm : BaseModuleForm
             Fecha = n.FechaHora.ToString("dd/MM/yyyy HH:mm"),
             n.Titulo,
             n.Contenido,
-            Visible = n.VisibleParaPaciente ? "Si" : "No"
+            Visible = n.VisibleParaPaciente ? "Sí" : "No"
         }).ToList();
+        ApplyNotesGridColumnLayout();
+    }
+
+    private void ApplyNotesGridColumnLayout()
+    {
+        if (_grid.Columns["Fecha"] is { } fechaColumn)
+        {
+            fechaColumn.HeaderText = "Fecha";
+            fechaColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            fechaColumn.Width = 150;
+            fechaColumn.MinimumWidth = 135;
+            fechaColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+        }
+
+        if (_grid.Columns["Titulo"] is { } titleColumn)
+        {
+            titleColumn.HeaderText = "Título";
+            titleColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            titleColumn.FillWeight = 24;
+            titleColumn.MinimumWidth = 170;
+        }
+
+        if (_grid.Columns["Contenido"] is { } contentColumn)
+        {
+            contentColumn.HeaderText = "Contenido";
+            contentColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            contentColumn.FillWeight = 62;
+            contentColumn.MinimumWidth = 320;
+            contentColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        }
+
+        if (_grid.Columns["Visible"] is { } visibleColumn)
+        {
+            visibleColumn.HeaderText = "Visible";
+            visibleColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            visibleColumn.Width = 76;
+            visibleColumn.MinimumWidth = 68;
+            visibleColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        }
     }
 }

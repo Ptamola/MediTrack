@@ -122,4 +122,10 @@ public abstract class MySqlRepositoryBase<T>
     {
         return reader.GetDecimal(reader.GetOrdinal(columnName));
     }
+
+    protected static decimal GetNullableDecimal(MySqlDataReader reader, string columnName)
+    {
+        var ordinal = reader.GetOrdinal(columnName);
+        return reader.IsDBNull(ordinal) ? 0m : reader.GetDecimal(ordinal);
+    }
 }

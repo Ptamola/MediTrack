@@ -22,7 +22,8 @@ public class InformesForm : BaseModuleForm
         BorderStyle = BorderStyle.None,
         DetectUrls = false,
         Font = new Font("Segoe UI", 11),
-        ScrollBars = RichTextBoxScrollBars.Vertical
+        ScrollBars = RichTextBoxScrollBars.Vertical,
+        WordWrap = true
     };
     private readonly DataGridView _gridReports = UiFactory.CreateGrid();
     private readonly Label _lblStatus = UiFactory.CreateMutedLabel("Selecciona un paciente y un rango de fechas para generar el informe clínico.");
@@ -36,14 +37,18 @@ public class InformesForm : BaseModuleForm
     {
         _services = services;
         _session = session;
+        ConfigureReportsGrid();
 
         var page = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 2
+            RowCount = 2,
+            AutoScroll = true,
+            BackColor = AppTheme.Background
         };
-        page.RowStyles.Add(new RowStyle(SizeType.Absolute, 200));
+        page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        page.RowStyles.Add(new RowStyle(SizeType.Absolute, 230));
         page.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         page.Controls.Add(BuildFilterCard(), 0, 0);
@@ -61,32 +66,50 @@ public class InformesForm : BaseModuleForm
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 4,
-            RowCount = 4
+            ColumnCount = 1,
+            RowCount = 4,
+            AutoScroll = true,
+            BackColor = AppTheme.Surface
         };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 28));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         layout.Controls.Add(UiFactory.CreateSectionTitle("Generación y exportación"), 0, 0);
-        layout.SetColumnSpan(layout.GetControlFromPosition(0, 0)!, 4);
 
-        var intro = UiFactory.CreateParagraphLabel("Genera informes clínicos, visualízalos dentro de la aplicación y expórtalos en PDF cuando lo necesites.", 48);
+        var intro = UiFactory.CreateParagraphLabel("Genera informes clínicos, visualízalos dentro de la aplicación y expórtalos en PDF cuando lo necesites.", 44);
         layout.Controls.Add(intro, 0, 1);
-        layout.SetColumnSpan(intro, 4);
 
-        var patientPanel = BuildFieldPanel("Paciente", _cmbPacientes);
-        var fromPanel = BuildFieldPanel("Desde", _dtpInicio);
-        var toPanel = BuildFieldPanel("Hasta", _dtpFin);
+        var fieldsPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = true,
+            Margin = new Padding(0, 8, 0, 8)
+        };
+
+        if (_session.CurrentUser?.Rol != UserRole.Paciente)
+        {
+            fieldsPanel.Controls.Add(BuildFieldPanel("Paciente", _cmbPacientes, 300));
+        }
+        else
+        {
+            fieldsPanel.Controls.Add(UiFactory.CreateInfoPanel("El informe se generará sobre tu propio perfil de paciente.", 74));
+        }
+
+        fieldsPanel.Controls.Add(BuildFieldPanel("Desde", _dtpInicio, 190));
+        fieldsPanel.Controls.Add(BuildFieldPanel("Hasta", _dtpFin, 190));
 
         var actionsPanel = new FlowLayoutPanel
         {
-            Dock = DockStyle.Fill,
-            FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
+            Dock = DockStyle.Top,
             AutoSize = true,
-            Margin = new Padding(0, 8, 0, 0)
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = true,
+            Margin = new Padding(8, 28, 0, 0)
         };
         var btnGenerate = UiFactory.CreateButton("Generar informe");
         btnGenerate.Width = 190;
@@ -96,23 +119,13 @@ public class InformesForm : BaseModuleForm
         btnPdf.Click += async (_, _) => await ExportAsync();
         actionsPanel.Controls.Add(btnGenerate);
         actionsPanel.Controls.Add(btnPdf);
+        fieldsPanel.Controls.Add(actionsPanel);
 
-        if (_session.CurrentUser?.Rol != UserRole.Paciente)
-        {
-            layout.Controls.Add(patientPanel, 0, 2);
-        }
-        else
-        {
-            layout.Controls.Add(UiFactory.CreateInfoPanel("El informe se generará sobre tu propio perfil de paciente.", 74), 0, 2);
-        }
-
-        layout.Controls.Add(fromPanel, 1, 2);
-        layout.Controls.Add(toPanel, 2, 2);
-        layout.Controls.Add(actionsPanel, 3, 2);
-
-        _lblStatus.MaximumSize = new Size(1200, 0);
+        _lblStatus.AutoSize = false;
+        _lblStatus.Dock = DockStyle.Fill;
+        _lblStatus.Height = 44;
+        layout.Controls.Add(fieldsPanel, 0, 2);
         layout.Controls.Add(_lblStatus, 0, 3);
-        layout.SetColumnSpan(_lblStatus, 4);
 
         card.Controls.Add(layout);
         return card;
@@ -124,14 +137,35 @@ public class InformesForm : BaseModuleForm
         {
             Dock = DockStyle.Fill,
             ColumnCount = 2,
-            RowCount = 1
+            RowCount = 1,
+            AutoScroll = true,
+            BackColor = AppTheme.Background
         };
-        content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56));
-        content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44));
 
+        var reportsCard = BuildReportsCard();
+        var previewCard = BuildPreviewCard();
+
+        var stacked = false;
+        ApplyContentLayout(content, reportsCard, previewCard, stacked);
+        content.Resize += (_, _) =>
+        {
+            var shouldStack = content.ClientSize.Width < 1050;
+            if (shouldStack == stacked)
+            {
+                return;
+            }
+
+            stacked = shouldStack;
+            ApplyContentLayout(content, reportsCard, previewCard, stacked);
+        };
+
+        return content;
+    }
+
+    private Control BuildReportsCard()
+    {
         var reportsCard = AppTheme.CreateCardPanel();
         reportsCard.Padding = new Padding(20);
-        reportsCard.Margin = new Padding(0, 0, 10, 0);
 
         var reportsLayout = new TableLayoutPanel
         {
@@ -139,15 +173,19 @@ public class InformesForm : BaseModuleForm
             RowCount = 2,
             ColumnCount = 1
         };
+        reportsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         reportsLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         reportsLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         reportsLayout.Controls.Add(UiFactory.CreateSectionTitle("Historial de informes"), 0, 0);
         reportsLayout.Controls.Add(_gridReports, 0, 1);
         reportsCard.Controls.Add(reportsLayout);
+        return reportsCard;
+    }
 
+    private Control BuildPreviewCard()
+    {
         var previewCard = AppTheme.CreateCardPanel();
         previewCard.Padding = new Padding(24);
-        previewCard.Margin = new Padding(10, 0, 0, 0);
 
         var previewLayout = new TableLayoutPanel
         {
@@ -155,29 +193,59 @@ public class InformesForm : BaseModuleForm
             RowCount = 3,
             ColumnCount = 1
         };
+        previewLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         previewLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         previewLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         previewLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         previewLayout.Controls.Add(UiFactory.CreateSectionTitle("Vista previa del informe"), 0, 0);
-        previewLayout.Controls.Add(UiFactory.CreateMutedLabel("Resumen clínico legible dentro de la aplicación, listo para revisión antes de exportar."), 0, 1);
+        previewLayout.Controls.Add(UiFactory.CreateParagraphLabel("Resumen clínico legible dentro de la aplicación, listo para revisión antes de exportar.", 44), 0, 1);
 
         var previewSurface = AppTheme.CreateMutedPanel();
         previewSurface.Padding = new Padding(22);
         previewSurface.Controls.Add(_preview);
         previewLayout.Controls.Add(previewSurface, 0, 2);
         previewCard.Controls.Add(previewLayout);
-
-        content.Controls.Add(reportsCard, 0, 0);
-        content.Controls.Add(previewCard, 1, 0);
-        return content;
+        return previewCard;
     }
 
-    private static Panel BuildFieldPanel(string labelText, Control input)
+    private static void ApplyContentLayout(TableLayoutPanel content, Control reportsCard, Control previewCard, bool stacked)
+    {
+        content.SuspendLayout();
+        content.Controls.Clear();
+        content.ColumnStyles.Clear();
+        content.RowStyles.Clear();
+
+        if (stacked)
+        {
+            content.ColumnCount = 1;
+            content.RowCount = 2;
+            content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            content.RowStyles.Add(new RowStyle(SizeType.Absolute, 360));
+            content.RowStyles.Add(new RowStyle(SizeType.Absolute, 520));
+            content.Controls.Add(reportsCard, 0, 0);
+            content.Controls.Add(previewCard, 0, 1);
+        }
+        else
+        {
+            content.ColumnCount = 2;
+            content.RowCount = 1;
+            content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54));
+            content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46));
+            content.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            content.Controls.Add(reportsCard, 0, 0);
+            content.Controls.Add(previewCard, 1, 0);
+        }
+
+        content.ResumeLayout();
+    }
+
+    private static Panel BuildFieldPanel(string labelText, Control input, int width)
     {
         var panel = new Panel
         {
-            Dock = DockStyle.Fill,
-            Margin = new Padding(0, 8, 16, 0),
+            Width = width,
+            Height = 72,
+            Margin = new Padding(0, 0, 16, 0),
             Padding = new Padding(0)
         };
 
@@ -201,7 +269,6 @@ public class InformesForm : BaseModuleForm
         _dtpInicio.Value = DateTime.Today.AddMonths(-1);
         _dtpFin.Value = DateTime.Today;
 
-        _gridReports.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         _gridReports.SelectionChanged += async (_, _) => await LoadSelectedReportPreviewAsync();
 
         if (_session.CurrentUser?.Rol != UserRole.Paciente)
@@ -323,18 +390,7 @@ public class InformesForm : BaseModuleForm
             Pdf = string.IsNullOrWhiteSpace(r.RutaPdf) ? "Pendiente" : "Exportado"
         }).ToList();
 
-        if (_gridReports.Columns.Contains("Id"))
-        {
-            _gridReports.Columns["Id"].Visible = false;
-        }
-
-        if (_gridReports.Columns.Contains("Fecha"))
-        {
-            _gridReports.Columns["Fecha"].FillWeight = 28;
-            _gridReports.Columns["Periodo"].FillWeight = 34;
-            _gridReports.Columns["Paciente"].FillWeight = 24;
-            _gridReports.Columns["Pdf"].FillWeight = 14;
-        }
+        ApplyReportsGridColumns();
 
         if (reports.Count == 0)
         {
@@ -396,7 +452,7 @@ public class InformesForm : BaseModuleForm
             ? report.Enfermedades.Select(e => e.Nombre)
             : ["Sin enfermedades registradas."]);
 
-        AppendSection("Medicacion actual", report.Medicamentos.Count > 0
+        AppendSection("Medicación actual", report.Medicamentos.Count > 0
             ? report.Medicamentos.Select(m => $"{m.Nombre} | {m.Dosis} | {m.Frecuencia} | {m.Horario}")
             : ["Sin medicación activa."]);
 
@@ -462,5 +518,48 @@ public class InformesForm : BaseModuleForm
         _preview.AppendText(text + Environment.NewLine);
         _preview.SelectionStart = 0;
         _preview.SelectionLength = 0;
+    }
+
+    private void ConfigureReportsGrid()
+    {
+        _gridReports.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        _gridReports.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+        _gridReports.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        _gridReports.RowTemplate.MinimumHeight = 42;
+        _gridReports.ScrollBars = ScrollBars.Vertical;
+    }
+
+    private void ApplyReportsGridColumns()
+    {
+        if (_gridReports.Columns.Contains("Id"))
+        {
+            _gridReports.Columns["Id"].Visible = false;
+        }
+
+        SetReportColumn("Fecha", 24, 145, fixedWidth: true);
+        SetReportColumn("Periodo", 30, 200);
+        SetReportColumn("Paciente", 28, 180);
+        SetReportColumn("Pdf", 12, 100, fixedWidth: true);
+    }
+
+    private void SetReportColumn(string name, float fillWeight, int minimumWidth, bool fixedWidth = false)
+    {
+        if (_gridReports.Columns[name] is not { } column)
+        {
+            return;
+        }
+
+        column.AutoSizeMode = fixedWidth ? DataGridViewAutoSizeColumnMode.None : DataGridViewAutoSizeColumnMode.Fill;
+        column.FillWeight = fillWeight;
+        column.MinimumWidth = minimumWidth;
+        if (fixedWidth)
+        {
+            column.Width = minimumWidth;
+            column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+        }
+        else
+        {
+            column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        }
     }
 }
