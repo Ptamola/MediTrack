@@ -2,6 +2,6 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Interfaces.Repositories;
 
-public interface IMedicationRepository : IJsonRepository<Medication>
+public interface IMedicationRepository : IRepository<Medication>
 {
 }

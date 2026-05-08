@@ -2,6 +2,6 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Interfaces.Repositories;
 
-public interface IMeasurementRepository : IJsonRepository<Measurement>
+public interface IMeasurementRepository : IRepository<Measurement>
 {
 }

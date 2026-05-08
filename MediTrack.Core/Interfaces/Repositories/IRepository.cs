@@ -1,6 +1,6 @@
 namespace MediTrack.Core.Interfaces.Repositories;
 
-public interface IJsonRepository<T>
+public interface IRepository<T>
 {
     Task<List<T>> GetAllAsync();
     Task SaveAllAsync(List<T> items);
