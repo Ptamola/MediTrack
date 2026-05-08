@@ -15,9 +15,6 @@ public static class AppBootstrapper
         var databaseInitializer = new DatabaseInitializer(databaseSettings, connectionFactory);
         await databaseInitializer.InitializeAsync();
 
-        var dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-        var storagePaths = new StoragePaths(dataPath);
-
         IUserRepository userRepository = new UserRepositoryMySql(connectionFactory);
         IPatientRepository patientRepository = new PatientRepositoryMySql(connectionFactory);
         IDoctorRepository doctorRepository = new DoctorRepositoryMySql(connectionFactory);
@@ -57,7 +54,6 @@ public static class AppBootstrapper
 
         return new ApplicationServices
         {
-            StoragePaths = storagePaths,
             AuthService = authService,
             UserService = userService,
             PatientService = patientService,

@@ -1,11 +1,9 @@
 using MediTrack.Core.Interfaces.Services;
-using MediTrack.Data.Config;
 
 namespace MediTrack.WinForms.Config;
 
 public class ApplicationServices
 {
-    public required StoragePaths StoragePaths { get; init; }
     public required IAuthService AuthService { get; init; }
     public required IUserService UserService { get; init; }
     public required IPatientService PatientService { get; init; }
