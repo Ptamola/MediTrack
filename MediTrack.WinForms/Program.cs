@@ -1,4 +1,5 @@
 using MediTrack.WinForms.Config;
+using MediTrack.WinForms.Diagnostics;
 using MediTrack.WinForms.Forms.Auth;
 using QuestPDF.Infrastructure;
 
@@ -21,36 +22,12 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            var logPath = WriteStartupErrorLog(ex);
+            var logPath = StartupErrorLogger.Write(ex);
             MessageBox.Show(
                 $"No se pudo iniciar MediTrack.\n\nError: {ex.Message}\n\nSe ha guardado un informe en:\n{logPath}",
                 "Error de arranque",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
         }
-    }
-
-    private static string WriteStartupErrorLog(Exception ex)
-    {
-        var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "startup_error.log");
-        var content = $"""
-            Fecha y hora: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
-
-            Excepcion:
-            {ex}
-
-            InnerException:
-            {ex.InnerException?.ToString() ?? "Sin InnerException"}
-
-            Variables de entorno no sensibles:
-            MEDITRACK_DB_SERVER={Environment.GetEnvironmentVariable("MEDITRACK_DB_SERVER") ?? "(no definido)"}
-            MEDITRACK_DB_PORT={Environment.GetEnvironmentVariable("MEDITRACK_DB_PORT") ?? "(no definido)"}
-            MEDITRACK_DB_USER={Environment.GetEnvironmentVariable("MEDITRACK_DB_USER") ?? "(no definido)"}
-            MEDITRACK_DB_NAME={Environment.GetEnvironmentVariable("MEDITRACK_DB_NAME") ?? "(no definido)"}
-            MEDITRACK_DB_INIT={Environment.GetEnvironmentVariable("MEDITRACK_DB_INIT") ?? "(no definido)"}
-            """;
-
-        File.WriteAllText(logPath, content);
-        return logPath;
     }
 }
