@@ -4,11 +4,11 @@ MediTrack es una aplicación de escritorio en C# Windows Forms que funciona con 
 
 ## 1. Instalar MySQL
 
-1. Descarga **MySQL Installer Community** desde la web oficial de MySQL.
+1. Descarga MySQL Installer Community desde la web oficial de MySQL.
 2. Ejecuta el instalador.
 3. Instala como mínimo:
-   - **MySQL Server**
-   - **MySQL Workbench**
+   - MySQL Server.
+   - MySQL Workbench.
 4. Durante la configuración de MySQL Server:
    - Usa el puerto `3306`.
    - Crea y recuerda la contraseña del usuario `root`.
@@ -18,7 +18,7 @@ MySQL debe estar iniciado para que MediTrack funcione.
 
 ## 2. Crear base de datos
 
-1. Abre **MySQL Workbench**.
+1. Abre MySQL Workbench.
 2. Conéctate como `root`.
 3. Abre y ejecuta:
 
@@ -28,7 +28,7 @@ Database/01_create_database.sql
 
 Este script crea la base de datos `meditrak_db` con `utf8mb4` para soportar tildes y ñ.
 
-Las tablas no se crean manualmente en este script porque la app ejecuta `DatabaseInitializer` al arrancar y crea/actualiza las tablas necesarias.
+Las tablas no se crean manualmente en este script porque la app ejecuta `DatabaseInitializer` al arrancar y crea o actualiza las tablas necesarias.
 
 ## 3. Crear usuario de la aplicación
 
@@ -68,7 +68,24 @@ Abre PowerShell como usuario normal y ejecuta:
 
 Cierra y vuelve a abrir PowerShell o Visual Studio para que detecten las variables nuevas.
 
-## 5. Semilla demo automática
+## 5. Ejecución temporal desde PowerShell
+
+Si solo quieres probar la app en una sesión de PowerShell, puedes usar variables temporales:
+
+```powershell
+$env:MEDITRACK_DB_INIT="true"
+$env:MEDITRACK_DB_SERVER="localhost"
+$env:MEDITRACK_DB_PORT="3306"
+$env:MEDITRACK_DB_USER="meditrak_app"
+$env:MEDITRACK_DB_PASSWORD="MeditrakDemo123!"
+$env:MEDITRACK_DB_NAME="meditrak_db"
+
+dotnet run --project .\MediTrack.WinForms\MediTrack.WinForms.csproj
+```
+
+No guardes contraseñas reales de MySQL en el código ni en Git. Para la entrega demo se usa el usuario `meditrak_app` creado por el script.
+
+## 6. Semilla demo automática
 
 Al arrancar MediTrack:
 
@@ -86,7 +103,7 @@ Usuarios demo disponibles:
 | Paciente 1 | `paciente1` | `Paciente123!` |
 | Paciente 2 | `paciente2` | `Paciente123!` |
 
-## 6. Comprobar la instalación
+## 7. Comprobar la instalación
 
 En MySQL Workbench puedes ejecutar:
 
@@ -94,9 +111,32 @@ En MySQL Workbench puedes ejecutar:
 Database/03_test_queries.sql
 ```
 
-El script comprueba la base de datos, las tablas, conteos principales y pacientes con doctor asignado.
+También puedes comprobar manualmente:
 
-## 7. Publicar la app como .exe
+```sql
+SHOW DATABASES;
+USE meditrak_db;
+SHOW TABLES;
+SELECT NombreUsuario, Rol, Activo FROM usuarios;
+```
+
+Deberías ver tablas como:
+
+```text
+usuarios
+pacientes
+doctores
+administradores
+enfermedades_cronicas
+paciente_enfermedad
+doctor_paciente
+mediciones
+medicaciones
+notas_medicas
+informes
+```
+
+## 8. Publicar la app como .exe
 
 Desde la raíz del proyecto, ejecuta:
 
@@ -117,13 +157,13 @@ Para abrir la app en otro ordenador:
 3. Configura las variables de entorno.
 4. Ejecuta `MediTrack.WinForms.exe`.
 
-## 8. Crear acceso directo en el escritorio
+## 9. Crear acceso directo en el escritorio
 
 1. Ve a la carpeta `publish`.
 2. Haz clic derecho sobre `MediTrack.WinForms.exe`.
-3. Elige **Enviar a > Escritorio (crear acceso directo)**.
+3. Elige Enviar a > Escritorio (crear acceso directo).
 4. Usa ese acceso directo para abrir MediTrack como una app normal.
 
-## 9. Nota para una versión futura
+## 10. Nota para una versión futura
 
 Esta entrega usa MySQL local para facilitar la demo universitaria. En una versión futura, MediTrack podría usar una base de datos centralizada o global mediante una API segura, manteniendo la aplicación de escritorio como cliente.

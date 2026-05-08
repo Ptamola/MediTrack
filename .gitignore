@@ -2,5 +2,10 @@ bin/
 obj/
 .vs/
 .dotnet/
+.nuget/
+*.user
+*.csproj.user
+startup_error.log
+*.log
 MediTrack.WinForms/Data/
 MediTrack.WinForms/Reportes/

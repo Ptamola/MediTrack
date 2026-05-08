@@ -28,21 +28,24 @@ Si ya existen usuarios, la semilla no se ejecuta y no duplica datos.
 | Paciente 1 | `paciente1` | `Paciente123!` |
 | Paciente 2 | `paciente2` | `Paciente123!` |
 
-## Requisitos
+## Requisitos rápidos
 
 Para ejecutar la demo necesitas tener MySQL Server instalado y activo en tu equipo.
 
-Configura las variables de entorno antes de arrancar la app:
+La configuración recomendada usa el usuario de aplicación:
 
 ```powershell
+$env:MEDITRACK_DB_INIT="true"
 $env:MEDITRACK_DB_SERVER="localhost"
 $env:MEDITRACK_DB_PORT="3306"
-$env:MEDITRACK_DB_USER="root"
-$env:MEDITRACK_DB_PASSWORD="TU_CONTRASEÑA"
+$env:MEDITRACK_DB_USER="meditrak_app"
+$env:MEDITRACK_DB_PASSWORD="MeditrakDemo123!"
 $env:MEDITRACK_DB_NAME="meditrak_db"
 
 dotnet run --project .\MediTrack.WinForms\MediTrack.WinForms.csproj
 ```
+
+Para una instalación completa, consulta [README_INSTALACION.md](/C:/Users/Admin/Desktop/MediTrack/MediTrack/README_INSTALACION.md).
 
 ## Comprobación rápida en MySQL Workbench
 
