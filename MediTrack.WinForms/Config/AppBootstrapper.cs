@@ -1,7 +1,7 @@
 using MediTrack.Core.Interfaces.Repositories;
 using MediTrack.Core.Services;
 using MediTrack.Data.Config;
-using MediTrack.Data.Repositories;
+using MediTrack.Data.Repositories.MySql;
 using MediTrack.Data.Seed;
 
 namespace MediTrack.WinForms.Config;
@@ -10,20 +10,25 @@ public static class AppBootstrapper
 {
     public static async Task<ApplicationServices> BuildAsync()
     {
+        var databaseSettings = DatabaseSettings.FromEnvironment();
+        var connectionFactory = new DatabaseConnectionFactory(databaseSettings);
+        var databaseInitializer = new DatabaseInitializer(databaseSettings, connectionFactory);
+        await databaseInitializer.InitializeAsync();
+
         var dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
         var storagePaths = new StoragePaths(dataPath);
 
-        IUserRepository userRepository = new UserRepository(storagePaths);
-        IPatientRepository patientRepository = new PatientRepository(storagePaths);
-        IDoctorRepository doctorRepository = new DoctorRepository(storagePaths);
-        IAdministratorRepository administratorRepository = new AdministratorRepository(storagePaths);
-        IChronicDiseaseRepository chronicDiseaseRepository = new ChronicDiseaseRepository(storagePaths);
-        IPatientDiseaseRepository patientDiseaseRepository = new PatientDiseaseRepository(storagePaths);
-        IMedicationRepository medicationRepository = new MedicationRepository(storagePaths);
-        IMeasurementRepository measurementRepository = new MeasurementRepository(storagePaths);
-        IMedicalNoteRepository medicalNoteRepository = new MedicalNoteRepository(storagePaths);
-        IReportRepository reportRepository = new ReportRepository(storagePaths);
-        IDoctorPatientAssignmentRepository assignmentRepository = new DoctorPatientAssignmentRepository(storagePaths);
+        IUserRepository userRepository = new UserRepositoryMySql(connectionFactory);
+        IPatientRepository patientRepository = new PatientRepositoryMySql(connectionFactory);
+        IDoctorRepository doctorRepository = new DoctorRepositoryMySql(connectionFactory);
+        IAdministratorRepository administratorRepository = new AdministratorRepositoryMySql(connectionFactory);
+        IChronicDiseaseRepository chronicDiseaseRepository = new ChronicDiseaseRepositoryMySql(connectionFactory);
+        IPatientDiseaseRepository patientDiseaseRepository = new PatientDiseaseRepositoryMySql(connectionFactory);
+        IMedicationRepository medicationRepository = new MedicationRepositoryMySql(connectionFactory);
+        IMeasurementRepository measurementRepository = new MeasurementRepositoryMySql(connectionFactory);
+        IMedicalNoteRepository medicalNoteRepository = new MedicalNoteRepositoryMySql(connectionFactory);
+        IReportRepository reportRepository = new ReportRepositoryMySql(connectionFactory);
+        IDoctorPatientAssignmentRepository assignmentRepository = new DoctorPatientAssignmentRepositoryMySql(connectionFactory);
 
         var authService = new AuthService(userRepository, patientRepository);
         var userService = new UserService(userRepository, patientRepository, doctorRepository, administratorRepository);

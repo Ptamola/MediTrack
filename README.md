@@ -46,6 +46,23 @@ MediTrack es una aplicacion de escritorio en C# con Windows Forms para gestionar
 - Paciente
   - Usuario: `miguel.perez`
   - Contrasena: `Paciente123`
+  
+## Credenciales de prueba MySQL
+  Administrador:
+usuario: admin
+contraseña: Admin123!
+
+Doctor:
+usuario: doctor
+contraseña: Doctor123!
+
+Paciente 1:
+usuario: paciente1
+contraseña: Paciente123!
+
+Paciente 2:
+usuario: paciente2
+contraseña: Paciente123!
 
 ## Requisitos
 
