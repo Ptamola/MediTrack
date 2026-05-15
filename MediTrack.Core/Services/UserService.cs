@@ -7,6 +7,9 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Services;
 
+/// <summary>
+/// Servicio de administracion de usuarios. Centraliza altas, ediciones, roles y activacion.
+/// </summary>
 public class UserService(
     IUserRepository userRepository,
     IPatientRepository patientRepository,
@@ -21,6 +24,9 @@ public class UserService(
     public async Task<List<User>> GetByRoleAsync(UserRole role) =>
         (await userRepository.GetAllAsync()).Where(u => u.Rol == role).OrderBy(u => u.Apellidos).ThenBy(u => u.Nombre).ToList();
 
+    /// <summary>
+    /// Crea un usuario y su perfil minimo segun el rol seleccionado.
+    /// </summary>
     public async Task<OperationResult> CreateAsync(User user, string plainPassword)
     {
         if (string.IsNullOrWhiteSpace(user.Nombre) ||
@@ -62,6 +68,9 @@ public class UserService(
         return OperationResult.Ok("Usuario creado correctamente.");
     }
 
+    /// <summary>
+    /// Actualiza datos basicos sin modificar la contrasena.
+    /// </summary>
     public async Task<OperationResult> UpdateAsync(User user)
     {
         var users = await userRepository.GetAllAsync();
@@ -111,6 +120,9 @@ public class UserService(
         return OperationResult.Ok("Usuario actualizado.");
     }
 
+    /// <summary>
+    /// Activa o desactiva usuarios evitando dejar el sistema sin administradores activos.
+    /// </summary>
     public async Task<OperationResult> ToggleActiveAsync(Guid userId, bool active)
     {
         var users = await userRepository.GetAllAsync();
@@ -130,6 +142,9 @@ public class UserService(
         return OperationResult.Ok(active ? "Usuario activado." : "Usuario desactivado.");
     }
 
+    /// <summary>
+    /// Garantiza que cada usuario tenga la entidad de perfil correspondiente a su rol.
+    /// </summary>
     private async Task EnsureProfileAsync(User user)
     {
         switch (user.Rol)

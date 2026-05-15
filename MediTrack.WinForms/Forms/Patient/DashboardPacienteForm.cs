@@ -5,6 +5,10 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Patient;
 
+/// <summary>
+/// Panel resumen del paciente. Agrupa enfermedades, medicacion, recordatorios,
+/// mediciones recientes y notas visibles.
+/// </summary>
 public class DashboardPacienteForm : BaseModuleForm
 {
     private readonly ApplicationServices _services;
@@ -207,6 +211,9 @@ public class DashboardPacienteForm : BaseModuleForm
         return card;
     }
 
+    /// <summary>
+    /// Recarga las tarjetas y tablas del resumen usando los servicios de negocio.
+    /// </summary>
     private async Task LoadDataAsync()
     {
         var patientId = _session.CurrentUser?.Id ?? Guid.Empty;

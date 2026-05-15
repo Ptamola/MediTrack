@@ -5,6 +5,10 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Patient;
 
+/// <summary>
+/// Pantalla de enfermedades cronicas. Permite al doctor asignar enfermedades existentes
+/// o escribir una nueva, y marcar relaciones como activas o superadas.
+/// </summary>
 public class EnfermedadesForm : BaseModuleForm
 {
     private readonly ApplicationServices _services;
@@ -175,6 +179,9 @@ public class EnfermedadesForm : BaseModuleForm
         return right;
     }
 
+    /// <summary>
+    /// Prepara catalogo, pacientes accesibles y listado inicial.
+    /// </summary>
     private async Task InitializeAsync()
     {
         await LoadDiseaseCatalogAsync();
@@ -197,6 +204,9 @@ public class EnfermedadesForm : BaseModuleForm
         ? _session.CurrentUser!.Id
         : _cmbPacientes.SelectedValue is Guid patientId ? patientId : Guid.Empty;
 
+    /// <summary>
+    /// Asigna una enfermedad al paciente; si el texto no existe en catalogo, el servicio la crea.
+    /// </summary>
     private async Task AddAsync()
     {
         if (GetPatientId() == Guid.Empty)
@@ -227,6 +237,9 @@ public class EnfermedadesForm : BaseModuleForm
         await LoadGridAsync();
     }
 
+    /// <summary>
+    /// Actualiza fecha, observaciones y estado activo/superado de una enfermedad asignada.
+    /// </summary>
     private async Task UpdateAsync()
     {
         if (GetPatientId() == Guid.Empty)
@@ -267,6 +280,9 @@ public class EnfermedadesForm : BaseModuleForm
         await LoadGridAsync();
     }
 
+    /// <summary>
+    /// Carga el historial de enfermedades del paciente seleccionado con estado y fecha de fin.
+    /// </summary>
     private async Task LoadGridAsync()
     {
         var patientId = GetPatientId();

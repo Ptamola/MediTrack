@@ -2,6 +2,9 @@ using MediTrack.Core.Enums;
 
 namespace MediTrack.Core.Models;
 
+/// <summary>
+/// Registro puntual de una medicion clinica usada en historiales, graficas e informes.
+/// </summary>
 public class Measurement
 {
     public Guid Id { get; set; } = Guid.NewGuid();

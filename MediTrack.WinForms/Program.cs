@@ -5,8 +5,16 @@ using QuestPDF.Infrastructure;
 
 namespace MediTrack.WinForms;
 
+/// <summary>
+/// Punto de entrada de la aplicacion WinForms. Configura QuestPDF, construye las dependencias
+/// de la aplicacion y abre la pantalla de inicio de sesion.
+/// </summary>
 internal static class Program
 {
+    /// <summary>
+    /// Inicia MediTrack y centraliza cualquier error de arranque para que el usuario reciba
+    /// un mensaje claro y el equipo pueda revisar el log generado.
+    /// </summary>
     [STAThread]
     private static void Main()
     {

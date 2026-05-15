@@ -7,6 +7,9 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Shared;
 
+/// <summary>
+/// Pantalla compartida de informes. Genera vista previa, conserva historial y exporta PDF.
+/// </summary>
 public class InformesForm : BaseModuleForm
 {
     private readonly ApplicationServices _services;
@@ -264,6 +267,9 @@ public class InformesForm : BaseModuleForm
         return panel;
     }
 
+    /// <summary>
+    /// Prepara filtros, pacientes accesibles e historial inicial.
+    /// </summary>
     private async Task InitializeAsync()
     {
         _dtpInicio.Value = DateTime.Today.AddMonths(-1);
@@ -297,6 +303,9 @@ public class InformesForm : BaseModuleForm
         ? _session.CurrentUser!.Id
         : _cmbPacientes.SelectedValue is Guid patientId ? patientId : Guid.Empty;
 
+    /// <summary>
+    /// Genera un informe clinico del periodo seleccionado y lo guarda en el historial.
+    /// </summary>
     private async Task GenerateAsync()
     {
         if (CurrentPatientId == Guid.Empty)
@@ -323,6 +332,9 @@ public class InformesForm : BaseModuleForm
         await ReloadReportsAsync(_lastGenerated.Reporte.Id);
     }
 
+    /// <summary>
+    /// Pide al usuario una ruta de destino y exporta el informe a PDF.
+    /// </summary>
     private async Task ExportAsync()
     {
         if (_lastGenerated == null)
@@ -371,6 +383,9 @@ public class InformesForm : BaseModuleForm
         return $"Informe_{patientName}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
     }
 
+    /// <summary>
+    /// Recarga el historial de informes y mantiene seleccionada la fila recien generada si aplica.
+    /// </summary>
     private async Task ReloadReportsAsync(Guid? selectedReportId = null)
     {
         if (CurrentPatientId == Guid.Empty)
@@ -437,6 +452,9 @@ public class InformesForm : BaseModuleForm
         RenderPreview(_lastGenerated);
     }
 
+    /// <summary>
+    /// Renderiza una vista previa enriquecida dentro de la aplicacion sin abrir el PDF.
+    /// </summary>
     private void RenderPreview(GeneratedReportResult report)
     {
         _preview.Clear();

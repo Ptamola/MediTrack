@@ -6,6 +6,9 @@ using MySqlConnector;
 
 namespace MediTrack.Data.Repositories.MySql;
 
+/// <summary>
+/// Repositorio MySQL de usuarios. Gestiona credenciales hash, rol y estado activo.
+/// </summary>
 public class UserRepositoryMySql(DatabaseConnectionFactory connectionFactory)
     : MySqlRepositoryBase<User>(connectionFactory), IUserRepository
 {
@@ -15,6 +18,7 @@ public class UserRepositoryMySql(DatabaseConnectionFactory connectionFactory)
         ORDER BY Apellidos, Nombre;
         """;
 
+    // UPSERT: actualiza el usuario si ya existe por clave primaria o indice unico.
     protected override string InsertSql => """
         INSERT INTO usuarios (Id, Nombre, Apellidos, Email, NombreUsuario, PasswordHash, Rol, Activo, FechaCreacion)
         VALUES (@Id, @Nombre, @Apellidos, @Email, @NombreUsuario, @PasswordHash, @Rol, @Activo, @FechaCreacion)

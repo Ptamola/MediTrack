@@ -5,6 +5,9 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Services;
 
+/// <summary>
+/// Servicio de pacientes. Gestiona perfil ampliado y resumen de pacientes asignados a doctores.
+/// </summary>
 public class PatientService(
     IPatientRepository patientRepository,
     IUserRepository userRepository,
@@ -17,6 +20,9 @@ public class PatientService(
     public async Task<Patient?> GetByUserIdAsync(Guid userId) =>
         (await patientRepository.GetAllAsync()).FirstOrDefault(p => p.IdUsuario == userId);
 
+    /// <summary>
+    /// Actualiza el perfil clinico ampliado del paciente, incluida la ruta relativa de la foto.
+    /// </summary>
     public async Task<OperationResult> UpdateAsync(Patient patient)
     {
         var patients = await patientRepository.GetAllAsync();
@@ -46,6 +52,9 @@ public class PatientService(
         return OperationResult.Ok("Perfil actualizado.");
     }
 
+    /// <summary>
+    /// Devuelve pacientes asignados al doctor teniendo en cuenta solo la asignacion activa mas reciente.
+    /// </summary>
     public async Task<List<PatientSummaryDto>> GetAssignedPatientsSummaryAsync(Guid doctorId)
     {
         var assignments = await assignmentRepository.GetAllAsync();

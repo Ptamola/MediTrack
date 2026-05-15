@@ -6,6 +6,10 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Data.Seed;
 
+/// <summary>
+/// Inserta datos de demostracion cuando la base de datos esta vacia.
+/// Usa Guid fijos y repositorios MySQL para que la semilla sea repetible e idempotente.
+/// </summary>
 public class DataSeeder(
     IUserRepository userRepository,
     IPatientRepository patientRepository,
@@ -29,6 +33,10 @@ public class DataSeeder(
     private static readonly Guid AsthmaId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000003");
     private static readonly Guid KidneyDiseaseId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000004");
 
+    /// <summary>
+    /// Carga usuarios, perfiles, enfermedades, medicacion, mediciones, notas e informes demo
+    /// solo si todavia no existen usuarios en MySQL.
+    /// </summary>
     public async Task SeedAsync()
     {
         var existingUsers = await userRepository.GetAllAsync();
@@ -37,6 +45,7 @@ public class DataSeeder(
             return;
         }
 
+        // A partir de aqui la base esta vacia; se crean datos completos para probar todos los roles.
         var today = DateTime.Today;
         var users = BuildUsers();
         await userRepository.SaveAllAsync(users);
@@ -254,6 +263,9 @@ public class DataSeeder(
         ]);
     }
 
+    /// <summary>
+    /// Crea usuarios demo con el mismo hash de contrasena que usa el login real.
+    /// </summary>
     private static List<User> BuildUsers()
     {
         var createdAt = new DateTime(2026, 1, 1, 9, 0, 0);
@@ -310,6 +322,9 @@ public class DataSeeder(
         ];
     }
 
+    /// <summary>
+    /// Crea el catalogo base de enfermedades, manteniendo identificadores fijos para evitar duplicados.
+    /// </summary>
     private static List<ChronicDisease> BuildDiseases() =>
     [
         new ChronicDisease
@@ -338,6 +353,9 @@ public class DataSeeder(
         }
     ];
 
+    /// <summary>
+    /// Genera mediciones verosimiles y suficientes para probar historiales y graficas.
+    /// </summary>
     private static List<Measurement> BuildMeasurements(DateTime today) =>
     [
         new Measurement { Id = Guid.Parse("99999999-0000-0000-0000-000000000001"), PacienteId = Patient1Id, TipoMedicion = MeasurementType.Glucosa, Valor = 132, Unidad = "mg/dL", FechaHora = today.AddDays(-21).AddHours(8), Observaciones = "Ayunas" },

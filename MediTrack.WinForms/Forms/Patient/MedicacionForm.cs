@@ -5,6 +5,10 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Patient;
 
+/// <summary>
+/// Pantalla de medicacion. Los doctores gestionan tratamientos y los pacientes consultan
+/// su plan de medicacion.
+/// </summary>
 public class MedicacionForm : BaseModuleForm
 {
     private readonly ApplicationServices _services;
@@ -183,6 +187,9 @@ public class MedicacionForm : BaseModuleForm
         return gridCard;
     }
 
+    /// <summary>
+    /// Carga pacientes accesibles si procede y muestra la medicacion del paciente actual.
+    /// </summary>
     private async Task InitializeAsync()
     {
         if (_session.CurrentUser?.Rol != Core.Enums.UserRole.Paciente)
@@ -203,6 +210,9 @@ public class MedicacionForm : BaseModuleForm
         ? _session.CurrentUser!.Id
         : _cmbPacientes.SelectedValue is Guid patientId ? patientId : Guid.Empty;
 
+    /// <summary>
+    /// Crea o actualiza un medicamento usando MedicationService.
+    /// </summary>
     private async Task SaveAsync()
     {
         if (CurrentPatientId == Guid.Empty)
@@ -252,6 +262,9 @@ public class MedicacionForm : BaseModuleForm
         }
     }
 
+    /// <summary>
+    /// Refresca el plan de medicacion mostrado en la tabla.
+    /// </summary>
     private async Task LoadGridAsync()
     {
         if (CurrentPatientId == Guid.Empty)

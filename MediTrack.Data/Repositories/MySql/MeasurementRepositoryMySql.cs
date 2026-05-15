@@ -6,6 +6,9 @@ using MySqlConnector;
 
 namespace MediTrack.Data.Repositories.MySql;
 
+/// <summary>
+/// Repositorio MySQL de mediciones clinicas registradas por paciente.
+/// </summary>
 public class MeasurementRepositoryMySql(DatabaseConnectionFactory connectionFactory)
     : MySqlRepositoryBase<Measurement>(connectionFactory), IMeasurementRepository
 {

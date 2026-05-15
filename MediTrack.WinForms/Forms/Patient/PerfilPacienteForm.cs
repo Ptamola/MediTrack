@@ -5,6 +5,10 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Patient;
 
+/// <summary>
+/// Pantalla de perfil ampliado del paciente. Permite editar datos clinicos,
+/// contacto de emergencia y foto local del paciente.
+/// </summary>
 public class PerfilPacienteForm : BaseModuleForm
 {
     private readonly ApplicationServices _services;
@@ -240,6 +244,9 @@ public class PerfilPacienteForm : BaseModuleForm
         form.SetColumnSpan(control, 2);
     }
 
+    /// <summary>
+    /// Carga el perfil del paciente autenticado y actualiza el resumen lateral.
+    /// </summary>
     private async Task LoadProfileAsync()
     {
         var patient = await _services.PatientService.GetByUserIdAsync(_session.CurrentUser!.Id);
@@ -270,6 +277,9 @@ public class PerfilPacienteForm : BaseModuleForm
         LoadPhoto(patient.FotoRuta);
     }
 
+    /// <summary>
+    /// Permite elegir una imagen local antes de guardarla en la carpeta de datos de la app.
+    /// </summary>
     private void SelectPhoto()
     {
         using var dialog = new OpenFileDialog
@@ -287,6 +297,9 @@ public class PerfilPacienteForm : BaseModuleForm
         LoadPhotoFromAbsolutePath(dialog.FileName);
     }
 
+    /// <summary>
+    /// Guarda los cambios del perfil y refresca la edad calculada y la imagen mostrada.
+    /// </summary>
     private async Task SaveAsync()
     {
         if (_loadedPatient == null)
@@ -334,6 +347,9 @@ public class PerfilPacienteForm : BaseModuleForm
             result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
     }
 
+    /// <summary>
+    /// Copia la foto seleccionada a Data/FotosPacientes y devuelve una ruta relativa para MySQL.
+    /// </summary>
     private string CopyPhotoIfNeeded(Guid patientId, string currentRelativePath)
     {
         if (string.IsNullOrWhiteSpace(_pendingPhotoPath) || !File.Exists(_pendingPhotoPath))
@@ -401,6 +417,9 @@ public class PerfilPacienteForm : BaseModuleForm
         _cmbSexo.SelectedItem = normalized is "Hombre" or "Mujer" ? normalized : null;
     }
 
+    /// <summary>
+    /// Calcula la edad real teniendo en cuenta si el cumpleanos ya paso este ano.
+    /// </summary>
     private static int CalculateAge(DateTime birthDate)
     {
         var today = DateTime.Today;

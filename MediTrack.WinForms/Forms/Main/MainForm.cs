@@ -8,6 +8,9 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Main;
 
+/// <summary>
+/// Contenedor principal de la aplicacion. Crea la barra lateral y carga formularios segun el rol.
+/// </summary>
 public class MainForm : Form
 {
     private readonly ApplicationServices _services;
@@ -186,6 +189,9 @@ public class MainForm : Form
         return container;
     }
 
+    /// <summary>
+    /// Registra las opciones de menu permitidas para paciente, doctor o administrador.
+    /// </summary>
     private void BuildNavigation()
     {
         var role = _session.CurrentUser?.Rol ?? UserRole.Paciente;
@@ -276,6 +282,9 @@ public class MainForm : Form
         _activeButton.ForeColor = Color.White;
     }
 
+    /// <summary>
+    /// Inserta el formulario seleccionado dentro del area central sin abrir ventanas independientes.
+    /// </summary>
     private void OpenChild(Form child)
     {
         _moduleHost.Controls.Clear();

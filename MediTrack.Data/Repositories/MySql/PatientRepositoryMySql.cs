@@ -5,6 +5,9 @@ using MySqlConnector;
 
 namespace MediTrack.Data.Repositories.MySql;
 
+/// <summary>
+/// Repositorio MySQL del perfil ampliado del paciente, incluida informacion clinica y ruta de foto.
+/// </summary>
 public class PatientRepositoryMySql(DatabaseConnectionFactory connectionFactory)
     : MySqlRepositoryBase<Patient>(connectionFactory), IPatientRepository
 {

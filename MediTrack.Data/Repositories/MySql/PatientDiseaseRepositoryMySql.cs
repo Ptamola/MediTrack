@@ -5,6 +5,10 @@ using MySqlConnector;
 
 namespace MediTrack.Data.Repositories.MySql;
 
+/// <summary>
+/// Repositorio MySQL de la relacion paciente-enfermedad.
+/// Conserva el historial mediante Activa y FechaFin en vez de borrar registros.
+/// </summary>
 public class PatientDiseaseRepositoryMySql(DatabaseConnectionFactory connectionFactory)
     : MySqlRepositoryBase<PatientDisease>(connectionFactory), IPatientDiseaseRepository
 {

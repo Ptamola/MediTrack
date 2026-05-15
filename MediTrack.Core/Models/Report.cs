@@ -1,5 +1,9 @@
 namespace MediTrack.Core.Models;
 
+/// <summary>
+/// Informe clinico generado para un paciente durante un periodo concreto.
+/// RutaPdf queda informada cuando se exporta el documento.
+/// </summary>
 public class Report
 {
     public Guid Id { get; set; } = Guid.NewGuid();

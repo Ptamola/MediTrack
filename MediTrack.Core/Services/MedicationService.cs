@@ -6,8 +6,14 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Services;
 
+/// <summary>
+/// Servicio de medicacion. Valida tratamientos y calcula recordatorios simples para el paciente.
+/// </summary>
 public class MedicationService(IMedicationRepository medicationRepository) : IMedicationService
 {
+    /// <summary>
+    /// Devuelve la medicacion de un paciente ordenando primero los tratamientos activos.
+    /// </summary>
     public async Task<List<Medication>> GetByPatientAsync(Guid patientId) =>
         (await medicationRepository.GetAllAsync())
         .Where(m => m.PacienteId == patientId)
@@ -21,6 +27,9 @@ public class MedicationService(IMedicationRepository medicationRepository) : IMe
         return ReminderHelper.BuildReminders(medications);
     }
 
+    /// <summary>
+    /// Crea o actualiza una medicacion despues de validar fechas y campos obligatorios.
+    /// </summary>
     public async Task<OperationResult> SaveAsync(Medication medication)
     {
         var validation = ValidationHelper.ValidateMedication(medication);

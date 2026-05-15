@@ -5,6 +5,10 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Shared;
 
+/// <summary>
+/// Pantalla compartida de notas medicas. El doctor crea notas y el paciente solo ve
+/// las marcadas como visibles.
+/// </summary>
 public class NotasMedicasForm : BaseModuleForm
 {
     private readonly ApplicationServices _services;
@@ -234,6 +238,9 @@ public class NotasMedicasForm : BaseModuleForm
         _grid.AllowUserToResizeRows = true;
     }
 
+    /// <summary>
+    /// Carga pacientes accesibles y el historial de notas segun el rol actual.
+    /// </summary>
     private async Task InitializeAsync()
     {
         if (_session.CurrentUser?.Rol != UserRole.Paciente)
@@ -257,6 +264,9 @@ public class NotasMedicasForm : BaseModuleForm
         ? _session.CurrentUser!.Id
         : _cmbPacientes.SelectedValue is Guid patientId ? patientId : Guid.Empty;
 
+    /// <summary>
+    /// Guarda una nota nueva escrita por el doctor.
+    /// </summary>
     private async Task SaveAsync()
     {
         var note = new MedicalNote
@@ -279,6 +289,9 @@ public class NotasMedicasForm : BaseModuleForm
         await LoadNotesAsync();
     }
 
+    /// <summary>
+    /// Recarga la tabla aplicando el filtro de visibilidad si el usuario es paciente.
+    /// </summary>
     private async Task LoadNotesAsync()
     {
         if (CurrentPatientId == Guid.Empty)

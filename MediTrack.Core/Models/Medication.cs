@@ -1,5 +1,8 @@
 namespace MediTrack.Core.Models;
 
+/// <summary>
+/// Medicacion pautada a un paciente, con fechas de inicio y fin para seguimiento.
+/// </summary>
 public class Medication
 {
     public Guid Id { get; set; } = Guid.NewGuid();

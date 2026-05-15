@@ -2,6 +2,9 @@ using MediTrack.Core.Enums;
 
 namespace MediTrack.Core.Models;
 
+/// <summary>
+/// Usuario autenticable de MediTrack. El rol determina la navegacion y permisos visibles.
+/// </summary>
 public class User
 {
     public Guid Id { get; set; } = Guid.NewGuid();

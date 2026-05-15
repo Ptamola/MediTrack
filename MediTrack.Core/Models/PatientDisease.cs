@@ -1,5 +1,8 @@
 namespace MediTrack.Core.Models;
 
+/// <summary>
+/// Relacion entre paciente y enfermedad. Permite marcar enfermedades superadas sin borrar historial.
+/// </summary>
 public class PatientDisease
 {
     public Guid Id { get; set; } = Guid.NewGuid();

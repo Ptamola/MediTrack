@@ -1,5 +1,9 @@
 namespace MediTrack.Core.Models;
 
+/// <summary>
+/// Perfil clinico ampliado del paciente. Complementa al usuario con datos sanitarios,
+/// contacto de emergencia y ruta relativa de la foto.
+/// </summary>
 public class Patient
 {
     public Guid IdUsuario { get; set; }

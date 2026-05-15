@@ -5,6 +5,9 @@ using MySqlConnector;
 
 namespace MediTrack.Data.Repositories.MySql;
 
+/// <summary>
+/// Repositorio MySQL de notas medicas, incluyendo el control de visibilidad para pacientes.
+/// </summary>
 public class MedicalNoteRepositoryMySql(DatabaseConnectionFactory connectionFactory)
     : MySqlRepositoryBase<MedicalNote>(connectionFactory), IMedicalNoteRepository
 {

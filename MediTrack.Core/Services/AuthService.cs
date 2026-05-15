@@ -7,8 +7,15 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Services;
 
+/// <summary>
+/// Servicio de autenticacion y registro publico de pacientes.
+/// Valida credenciales, verifica hashes y devuelve el usuario con su rol.
+/// </summary>
 public class AuthService(IUserRepository userRepository, IPatientRepository patientRepository) : IAuthService
 {
+    /// <summary>
+    /// Permite iniciar sesion con nombre de usuario o email, siempre que el usuario este activo.
+    /// </summary>
     public async Task<AuthResult> LoginAsync(string usuarioOEmail, string password)
     {
         var users = await userRepository.GetAllAsync();
@@ -30,6 +37,9 @@ public class AuthService(IUserRepository userRepository, IPatientRepository pati
         };
     }
 
+    /// <summary>
+    /// Registra pacientes desde la pantalla publica, creando usuario y perfil de paciente asociado.
+    /// </summary>
     public async Task<OperationResult> RegisterPatientAsync(RegisterRequest request)
     {
         var validation = ValidationHelper.ValidateRegistration(request);

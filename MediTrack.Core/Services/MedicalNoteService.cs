@@ -5,8 +5,14 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Services;
 
+/// <summary>
+/// Servicio de notas medicas. Controla que el paciente solo vea notas marcadas como visibles.
+/// </summary>
 public class MedicalNoteService(IMedicalNoteRepository medicalNoteRepository) : IMedicalNoteService
 {
+    /// <summary>
+    /// Obtiene notas de un paciente, filtrando por visibilidad cuando se consulta desde el rol paciente.
+    /// </summary>
     public async Task<List<MedicalNote>> GetByPatientAsync(Guid patientId, bool onlyVisibleForPatient)
     {
         var query = (await medicalNoteRepository.GetAllAsync())
@@ -20,6 +26,9 @@ public class MedicalNoteService(IMedicalNoteRepository medicalNoteRepository) : 
         return query.OrderByDescending(n => n.FechaHora).ToList();
     }
 
+    /// <summary>
+    /// Crea una nota medica con fecha actual y visibilidad indicada por el doctor.
+    /// </summary>
     public async Task<OperationResult> SaveAsync(MedicalNote note)
     {
         if (string.IsNullOrWhiteSpace(note.Titulo) || string.IsNullOrWhiteSpace(note.Contenido))

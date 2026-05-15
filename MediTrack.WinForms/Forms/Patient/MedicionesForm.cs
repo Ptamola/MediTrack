@@ -7,6 +7,9 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Patient;
 
+/// <summary>
+/// Pantalla de mediciones clinicas. Permite registrar valores y visualizar historial y evolucion.
+/// </summary>
 public class MedicionesForm : BaseModuleForm
 {
     private readonly ApplicationServices _services;
@@ -194,6 +197,9 @@ public class MedicionesForm : BaseModuleForm
         return chartCard;
     }
 
+    /// <summary>
+    /// Inicializa tipos de medicion, filtros y paciente activo.
+    /// </summary>
     private async Task InitializeAsync()
     {
         _cmbTipo.DataSource = Enum.GetValues(typeof(MeasurementType));
@@ -217,6 +223,9 @@ public class MedicionesForm : BaseModuleForm
         ? _session.CurrentUser!.Id
         : _cmbPacientes.SelectedValue is Guid patientId ? patientId : Guid.Empty;
 
+    /// <summary>
+    /// Guarda una medicion nueva y recarga tabla y grafica.
+    /// </summary>
     private async Task SaveAsync()
     {
         if (CurrentPatientId == Guid.Empty)
@@ -248,6 +257,9 @@ public class MedicionesForm : BaseModuleForm
         await ReloadAsync();
     }
 
+    /// <summary>
+    /// Recarga mediciones filtradas y actualiza el panel de graficas.
+    /// </summary>
     private async Task ReloadAsync()
     {
         if (CurrentPatientId == Guid.Empty)

@@ -9,6 +9,10 @@ using QuestPDF.Infrastructure;
 
 namespace MediTrack.Core.Services;
 
+/// <summary>
+/// Servicio de informes clinicos. Reune informacion de pacientes, enfermedades, medicacion,
+/// mediciones y notas para generar vista previa y PDF.
+/// </summary>
 public class ReportService(
     IUserRepository userRepository,
     IPatientRepository patientRepository,
@@ -25,6 +29,9 @@ public class ReportService(
         .OrderByDescending(r => r.FechaGeneracion)
         .ToList();
 
+    /// <summary>
+    /// Genera el informe clinico del periodo y opcionalmente lo guarda en el historial.
+    /// </summary>
     public async Task<GeneratedReportResult> GenerateAsync(Guid patientId, Guid generadoPorUsuarioId, DateTime fechaInicio, DateTime fechaFin, bool saveToHistory = true)
     {
         var users = await userRepository.GetAllAsync();
@@ -34,6 +41,7 @@ public class ReportService(
         var previousDoctors = await doctorAssignmentService.GetPreviousDoctorsForPatientAsync(patientId);
         var catalog = await diseaseService.GetCatalogAsync();
         var patientDiseases = await diseaseService.GetPatientDiseasesAsync(patientId);
+        // El informe distingue enfermedades activas y superadas para mostrar el historial clinico completo.
         var diseases = patientDiseases
             .Where(pd => pd.Activa)
             .Join(catalog, pd => pd.EnfermedadId, d => d.Id, (_, d) => d)
@@ -81,6 +89,9 @@ public class ReportService(
         return result;
     }
 
+    /// <summary>
+    /// Exporta el ultimo informe generado a PDF y guarda la ruta resultante en MySQL.
+    /// </summary>
     public async Task<OperationResult> ExportPdfAsync(GeneratedReportResult reportResult, string outputFilePath)
     {
         if (string.IsNullOrWhiteSpace(outputFilePath))

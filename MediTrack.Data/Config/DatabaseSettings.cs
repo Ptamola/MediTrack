@@ -1,5 +1,9 @@
 namespace MediTrack.Data.Config;
 
+/// <summary>
+/// Representa la configuracion de conexion a MySQL leida desde variables de entorno.
+/// Evita guardar credenciales reales dentro del codigo fuente.
+/// </summary>
 public class DatabaseSettings
 {
     public const string DefaultDatabaseName = "meditrak_db";
@@ -11,6 +15,10 @@ public class DatabaseSettings
     public string DatabaseName { get; init; } = DefaultDatabaseName;
     public bool InitializeOnStartup { get; init; }
 
+    /// <summary>
+    /// Crea una configuracion usando variables MEDITRACK_DB_* y valores seguros por defecto
+    /// para desarrollo local.
+    /// </summary>
     public static DatabaseSettings FromEnvironment()
     {
         return new DatabaseSettings

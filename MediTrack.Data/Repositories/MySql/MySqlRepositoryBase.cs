@@ -4,6 +4,10 @@ using MediTrack.Data.Config;
 
 namespace MediTrack.Data.Repositories.MySql;
 
+/// <summary>
+/// Clase base para repositorios MySQL con operaciones comunes de lectura y guardado.
+/// Mantiene transacciones y usa sentencias UPSERT para evitar borrados masivos.
+/// </summary>
 public abstract class MySqlRepositoryBase<T>
 {
     private readonly DatabaseConnectionFactory _connectionFactory;
@@ -18,6 +22,9 @@ public abstract class MySqlRepositoryBase<T>
     protected abstract T Map(MySqlDataReader reader);
     protected abstract void AddInsertParameters(MySqlCommand command, T item);
 
+    /// <summary>
+    /// Obtiene todos los registros de la tabla asociada al repositorio.
+    /// </summary>
     public async Task<List<T>> GetAllAsync()
     {
         var items = new List<T>();
@@ -36,6 +43,10 @@ public abstract class MySqlRepositoryBase<T>
         return items;
     }
 
+    /// <summary>
+    /// Guarda una lista de entidades usando INSERT ... ON DUPLICATE KEY UPDATE.
+    /// No elimina registros existentes, por lo que respeta relaciones y datos manuales.
+    /// </summary>
     public async Task SaveAllAsync(List<T> items)
     {
         await using var connection = _connectionFactory.CreateDatabaseConnection();
@@ -62,11 +73,17 @@ public abstract class MySqlRepositoryBase<T>
         }
     }
 
+    /// <summary>
+    /// Normaliza valores nulos para que MySqlConnector reciba DBNull.Value.
+    /// </summary>
     protected static void AddParameter(MySqlCommand command, string name, object? value)
     {
         command.Parameters.AddWithValue(name, value ?? DBNull.Value);
     }
 
+    /// <summary>
+    /// Lee Guid tanto si MySqlConnector devuelve System.Guid como si devuelve texto CHAR(36).
+    /// </summary>
     protected static Guid GetGuid(MySqlDataReader reader, string columnName)
     {
         var ordinal = reader.GetOrdinal(columnName);

@@ -4,6 +4,9 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Auth;
 
+/// <summary>
+/// Pantalla inicial de acceso. Valida credenciales mediante AuthService y abre la navegacion segun el rol.
+/// </summary>
 public class LoginForm : Form
 {
     private readonly ApplicationServices _services;
@@ -21,6 +24,9 @@ public class LoginForm : Form
         MaximumSize = new Size(420, 0)
     };
 
+    /// <summary>
+    /// Construye la pantalla de login con panel de marca y tarjeta de acceso.
+    /// </summary>
     public LoginForm(ApplicationServices services, AppSession session)
     {
         _services = services;
@@ -218,6 +224,9 @@ public class LoginForm : Form
         return host;
     }
 
+    /// <summary>
+    /// Ejecuta el inicio de sesion y crea la sesion activa usada por MainForm.
+    /// </summary>
     private async Task LoginAsync()
     {
         _lblStatus.Text = string.Empty;

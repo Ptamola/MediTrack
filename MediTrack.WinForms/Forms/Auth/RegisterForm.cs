@@ -4,6 +4,10 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Auth;
 
+/// <summary>
+/// Formulario publico de registro de pacientes.
+/// Solo permite crear cuentas con rol Paciente.
+/// </summary>
 public class RegisterForm : Form
 {
     private readonly ApplicationServices _services;
@@ -150,6 +154,9 @@ public class RegisterForm : Form
         return panel;
     }
 
+    /// <summary>
+    /// Envia los datos al servicio de autenticacion para crear usuario y perfil de paciente.
+    /// </summary>
     private async Task RegisterAsync()
     {
         var request = new RegisterRequest

@@ -6,8 +6,14 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Services;
 
+/// <summary>
+/// Servicio de mediciones clinicas. Aplica filtros por paciente, tipo y fechas.
+/// </summary>
 public class MeasurementService(IMeasurementRepository measurementRepository) : IMeasurementService
 {
+    /// <summary>
+    /// Consulta mediciones con filtros opcionales usados por tablas, informes y graficas.
+    /// </summary>
     public async Task<List<Measurement>> GetByPatientAsync(Guid patientId, Enums.MeasurementType? type = null, DateTime? from = null, DateTime? to = null)
     {
         var query = (await measurementRepository.GetAllAsync())
@@ -34,6 +40,9 @@ public class MeasurementService(IMeasurementRepository measurementRepository) : 
     public async Task<List<Measurement>> GetLatestAsync(Guid patientId, int count = 5) =>
         (await GetByPatientAsync(patientId)).Take(count).ToList();
 
+    /// <summary>
+    /// Guarda una medicion asignando automaticamente la unidad segun el tipo.
+    /// </summary>
     public async Task<OperationResult> SaveAsync(Measurement measurement)
     {
         measurement.Unidad = MeasurementHelper.GetUnit(measurement.TipoMedicion);

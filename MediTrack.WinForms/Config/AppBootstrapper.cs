@@ -6,8 +6,16 @@ using MediTrack.Data.Seed;
 
 namespace MediTrack.WinForms.Config;
 
+/// <summary>
+/// Construye manualmente las dependencias principales de la aplicacion.
+/// Aqui se conectan repositorios MySQL, servicios de negocio y semilla demo.
+/// </summary>
 public static class AppBootstrapper
 {
+    /// <summary>
+    /// Inicializa MySQL, crea los repositorios concretos y devuelve el contenedor de servicios
+    /// usado por los formularios WinForms.
+    /// </summary>
     public static async Task<ApplicationServices> BuildAsync()
     {
         var databaseSettings = DatabaseSettings.FromEnvironment();
@@ -15,6 +23,7 @@ public static class AppBootstrapper
         var databaseInitializer = new DatabaseInitializer(databaseSettings, connectionFactory);
         await databaseInitializer.InitializeAsync();
 
+        // Los formularios trabajan contra interfaces; cambiar la persistencia no requiere tocar la UI.
         IUserRepository userRepository = new UserRepositoryMySql(connectionFactory);
         IPatientRepository patientRepository = new PatientRepositoryMySql(connectionFactory);
         IDoctorRepository doctorRepository = new DoctorRepositoryMySql(connectionFactory);
@@ -37,6 +46,7 @@ public static class AppBootstrapper
         var assignmentService = new DoctorAssignmentService(assignmentRepository, userRepository);
         var reportService = new ReportService(userRepository, patientRepository, diseaseService, medicationService, measurementService, noteService, assignmentService, reportRepository);
 
+        // La semilla solo inserta datos si la base esta vacia, evitando duplicados en ejecuciones posteriores.
         var seeder = new DataSeeder(
             userRepository,
             patientRepository,

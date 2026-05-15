@@ -4,6 +4,10 @@ using MediTrack.WinForms.Helpers;
 
 namespace MediTrack.WinForms.Forms.Doctor;
 
+/// <summary>
+/// Dashboard del doctor. Muestra pacientes asignados y permite seleccionar el paciente activo
+/// para el resto de modulos clinicos.
+/// </summary>
 public class DashboardDoctorForm : BaseModuleForm
 {
     private readonly ApplicationServices _services;
@@ -86,6 +90,9 @@ public class DashboardDoctorForm : BaseModuleForm
         }
     }
 
+    /// <summary>
+    /// Carga el resumen de pacientes asignados al doctor conectado.
+    /// </summary>
     private async Task LoadDataAsync()
     {
         var items = await _services.PatientService.GetAssignedPatientsSummaryAsync(_session.CurrentUser!.Id);

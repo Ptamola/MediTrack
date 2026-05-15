@@ -5,6 +5,9 @@ using MySqlConnector;
 
 namespace MediTrack.Data.Repositories.MySql;
 
+/// <summary>
+/// Repositorio MySQL del historial de informes clinicos y rutas de PDF exportadas.
+/// </summary>
 public class ReportRepositoryMySql(DatabaseConnectionFactory connectionFactory)
     : MySqlRepositoryBase<Report>(connectionFactory), IReportRepository
 {

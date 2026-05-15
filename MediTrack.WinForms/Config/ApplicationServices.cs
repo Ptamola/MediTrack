@@ -2,6 +2,10 @@ using MediTrack.Core.Interfaces.Services;
 
 namespace MediTrack.WinForms.Config;
 
+/// <summary>
+/// Agrupa los servicios de negocio que consumen los formularios.
+/// Actua como un contenedor simple de dependencias para mantener la UI desacoplada de los repositorios.
+/// </summary>
 public class ApplicationServices
 {
     public required IAuthService AuthService { get; init; }

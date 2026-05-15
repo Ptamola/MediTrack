@@ -1,5 +1,8 @@
 namespace MediTrack.Core.Models;
 
+/// <summary>
+/// Nota escrita por un doctor sobre un paciente, con control de visibilidad para el paciente.
+/// </summary>
 public class MedicalNote
 {
     public Guid Id { get; set; } = Guid.NewGuid();

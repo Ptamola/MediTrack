@@ -5,6 +5,10 @@ using MediTrack.Core.Models;
 
 namespace MediTrack.Core.Services;
 
+/// <summary>
+/// Servicio de enfermedades cronicas. Permite usar el catalogo, crear enfermedades libres
+/// y mantener historiales activos o superados por paciente.
+/// </summary>
 public class DiseaseService(
     IChronicDiseaseRepository chronicDiseaseRepository,
     IPatientDiseaseRepository patientDiseaseRepository) : IDiseaseService
@@ -15,6 +19,9 @@ public class DiseaseService(
     public async Task<List<PatientDisease>> GetPatientDiseasesAsync(Guid patientId) =>
         (await patientDiseaseRepository.GetAllAsync()).Where(d => d.PacienteId == patientId).OrderByDescending(d => d.FechaDiagnostico).ToList();
 
+    /// <summary>
+    /// Asigna una enfermedad ya existente al paciente como activa.
+    /// </summary>
     public async Task<OperationResult> AssignDiseaseAsync(PatientDisease item)
     {
         var relations = await patientDiseaseRepository.GetAllAsync();
@@ -31,6 +38,9 @@ public class DiseaseService(
         return OperationResult.Ok("Enfermedad asignada correctamente.");
     }
 
+    /// <summary>
+    /// Busca una enfermedad por nombre; si no existe, la crea antes de asignarla al paciente.
+    /// </summary>
     public async Task<OperationResult> AssignDiseaseByNameAsync(Guid patientId, string diseaseName, DateTime diagnosisDate, string observations)
     {
         var normalizedName = diseaseName.Trim();
@@ -62,6 +72,9 @@ public class DiseaseService(
         });
     }
 
+    /// <summary>
+    /// Actualiza fecha, observaciones y estado. Si la enfermedad queda activa, se limpia FechaFin.
+    /// </summary>
     public async Task<OperationResult> UpdateAsync(PatientDisease item)
     {
         var relations = await patientDiseaseRepository.GetAllAsync();

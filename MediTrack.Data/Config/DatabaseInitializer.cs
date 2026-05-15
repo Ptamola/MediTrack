@@ -2,6 +2,10 @@ using MySqlConnector;
 
 namespace MediTrack.Data.Config;
 
+/// <summary>
+/// Crea y actualiza la estructura minima de MySQL que necesita MediTrack.
+/// Las operaciones son idempotentes para no borrar ni duplicar datos existentes.
+/// </summary>
 public class DatabaseInitializer
 {
     private readonly DatabaseSettings _settings;
@@ -13,6 +17,9 @@ public class DatabaseInitializer
         _connectionFactory = connectionFactory;
     }
 
+    /// <summary>
+    /// Garantiza que la base de datos y las tablas existan antes de construir los servicios.
+    /// </summary>
     public async Task InitializeAsync()
     {
         await CreateDatabaseAsync();
@@ -50,6 +57,9 @@ public class DatabaseInitializer
         await EnsurePatientDiseaseStatusColumnsAsync(connection);
     }
 
+    /// <summary>
+    /// Define las tablas principales del modelo clinico con CHAR(36) para Guid y utf8mb4 para tildes y ene.
+    /// </summary>
     private static IEnumerable<string> GetCreateTableStatements()
     {
         yield return """
@@ -261,6 +271,7 @@ public class DatabaseInitializer
 
     private async Task EnsurePatientProfileColumnsAsync(MySqlConnection connection)
     {
+        // Las columnas se anaden de forma segura para poder actualizar bases existentes sin perder datos.
         var columns = new (string Name, string Definition)[]
         {
             ("DniNie", "VARCHAR(30) NULL"),
@@ -310,6 +321,7 @@ public class DatabaseInitializer
 
     private async Task EnsurePatientDiseaseStatusColumnsAsync(MySqlConnection connection)
     {
+        // Activa y FechaFin permiten conservar el historial sin borrar enfermedades superadas.
         var columns = new (string Name, string Definition)[]
         {
             ("FechaFin", "DATE NULL"),

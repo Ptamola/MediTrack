@@ -5,6 +5,9 @@ using MySqlConnector;
 
 namespace MediTrack.Data.Repositories.MySql;
 
+/// <summary>
+/// Repositorio MySQL de medicacion pautada para pacientes.
+/// </summary>
 public class MedicationRepositoryMySql(DatabaseConnectionFactory connectionFactory)
     : MySqlRepositoryBase<Medication>(connectionFactory), IMedicationRepository
 {

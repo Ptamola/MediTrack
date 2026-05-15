@@ -1,9 +1,16 @@
 namespace MediTrack.WinForms.Diagnostics;
 
+/// <summary>
+/// Registra errores ocurridos antes de que la interfaz principal pueda abrirse.
+/// El log ayuda a diagnosticar problemas de MySQL o variables de entorno sin exponer la contrasena.
+/// </summary>
 internal static class StartupErrorLogger
 {
     private const string LogFileName = "startup_error.log";
 
+    /// <summary>
+    /// Escribe el detalle completo de la excepcion en un archivo junto al ejecutable.
+    /// </summary>
     public static string Write(Exception exception)
     {
         var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LogFileName);
@@ -11,6 +18,9 @@ internal static class StartupErrorLogger
         return logPath;
     }
 
+    /// <summary>
+    /// Construye el contenido del log con datos tecnicos utiles y sin incluir variables sensibles.
+    /// </summary>
     private static string BuildContent(Exception exception)
     {
         return $"""
