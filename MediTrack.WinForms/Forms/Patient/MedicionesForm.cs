@@ -47,7 +47,7 @@ public class MedicionesForm : BaseModuleForm
         ApplyResponsiveLayout(page, formCard, gridCard, chartCard, stacked);
         page.Resize += (_, _) =>
         {
-            var shouldStack = page.ClientSize.Width < 980;
+            var shouldStack = page.ClientSize.Width < 1080;
             if (shouldStack == stacked)
             {
                 return;
@@ -74,8 +74,8 @@ public class MedicionesForm : BaseModuleForm
             page.RowCount = 3;
             page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             page.RowStyles.Add(new RowStyle(SizeType.Absolute, 620));
-            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 430));
-            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 380));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 470));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 350));
             page.Controls.Add(formCard, 0, 0);
             page.Controls.Add(gridCard, 0, 1);
             page.Controls.Add(chartCard, 0, 2);
@@ -86,8 +86,8 @@ public class MedicionesForm : BaseModuleForm
             page.RowCount = 2;
             page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
             page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 66));
-            page.RowStyles.Add(new RowStyle(SizeType.Percent, 58));
-            page.RowStyles.Add(new RowStyle(SizeType.Percent, 42));
+            page.RowStyles.Add(new RowStyle(SizeType.Percent, 62));
+            page.RowStyles.Add(new RowStyle(SizeType.Percent, 38));
             page.Controls.Add(formCard, 0, 0);
             page.SetRowSpan(formCard, 2);
             page.Controls.Add(gridCard, 1, 0);
@@ -187,6 +187,7 @@ public class MedicionesForm : BaseModuleForm
     {
         var chartCard = AppTheme.CreateCardPanel();
         chartCard.Padding = new Padding(20);
+        _chart.Margin = new Padding(0, 8, 0, 0);
         var chartLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
         chartLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         chartLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -295,7 +296,7 @@ public class MedicionesForm : BaseModuleForm
         _grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
         _grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         _grid.RowTemplate.MinimumHeight = 42;
-        _grid.ScrollBars = ScrollBars.Both;
+        _grid.ScrollBars = ScrollBars.Vertical;
     }
 
     private void ApplyGridColumns()
@@ -303,30 +304,30 @@ public class MedicionesForm : BaseModuleForm
         if (_grid.Columns["Fecha"] is { } fecha)
         {
             fecha.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            fecha.Width = 145;
-            fecha.MinimumWidth = 130;
+            fecha.Width = 150;
+            fecha.MinimumWidth = 135;
             fecha.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         }
 
         if (_grid.Columns["Tipo"] is { } tipo)
         {
             tipo.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            tipo.FillWeight = 22;
-            tipo.MinimumWidth = 140;
+            tipo.FillWeight = 24;
+            tipo.MinimumWidth = 150;
         }
 
         if (_grid.Columns["Valor"] is { } valor)
         {
             valor.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             valor.FillWeight = 18;
-            valor.MinimumWidth = 110;
+            valor.MinimumWidth = 120;
         }
 
         if (_grid.Columns["Observaciones"] is { } observaciones)
         {
             observaciones.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            observaciones.FillWeight = 45;
-            observaciones.MinimumWidth = 220;
+            observaciones.FillWeight = 58;
+            observaciones.MinimumWidth = 240;
             observaciones.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         }
     }

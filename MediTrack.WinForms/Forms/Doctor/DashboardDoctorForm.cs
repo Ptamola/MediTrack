@@ -119,10 +119,10 @@ public class DashboardDoctorForm : BaseModuleForm
 
     private void ApplyGridColumns()
     {
-        SetFillColumn("NombreCompleto", "Paciente", 28, 190);
-        SetFillColumn("Email", "Email", 24, 190);
-        SetFillColumn("Telefono", "Teléfono", 16, 120);
-        SetFillColumn("Enfermedades", "Enfermedades", 42, 260);
+        SetFillColumn("NombreCompleto", "Paciente", 28, 160);
+        SetFillColumn("Email", "Email", 24, 165);
+        SetFillColumn("Telefono", "Teléfono", 14, 100);
+        SetFillColumn("Enfermedades", "Enfermedades", 46, 220);
     }
 
     private void SetFillColumn(string name, string header, float fillWeight, int minimumWidth)

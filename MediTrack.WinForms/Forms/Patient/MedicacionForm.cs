@@ -49,7 +49,7 @@ public class MedicacionForm : BaseModuleForm
         ApplyResponsiveLayout(page, formCard, gridCard, stacked);
         page.Resize += (_, _) =>
         {
-            var shouldStack = page.ClientSize.Width < 980;
+            var shouldStack = page.ClientSize.Width < 1100;
             if (shouldStack == stacked)
             {
                 return;
@@ -338,13 +338,13 @@ public class MedicacionForm : BaseModuleForm
             _grid.Columns["Id"].Visible = false;
         }
 
-        SetFillColumn("Nombre", 24, 150);
-        SetFillColumn("Dosis", 14, 110);
-        SetFillColumn("Frecuencia", 24, 160);
-        SetFillColumn("Horario", 18, 140);
-        SetFixedColumn("Inicio", 105);
-        SetFixedColumn("Fin", 105);
-        SetFixedColumn("Activo", 80);
+        SetFillColumn("Nombre", 24, 130);
+        SetFillColumn("Dosis", 14, 95);
+        SetFillColumn("Frecuencia", 24, 135);
+        SetFillColumn("Horario", 18, 115);
+        SetFixedColumn("Inicio", 96);
+        SetFixedColumn("Fin", 96);
+        SetFixedColumn("Activo", 74);
     }
 
     private void SetFillColumn(string name, float fillWeight, int minWidth)

@@ -17,6 +17,7 @@ public static class ReportPreviewBuilder
 
         sb.AppendLine(data.Titulo);
         sb.AppendLine(new string('=', data.Titulo.Length));
+        sb.AppendLine("Informe clínico generado en MediTrack a partir de los datos locales almacenados en MySQL.");
         sb.AppendLine();
         sb.AppendLine($"Paciente: {pacienteNombre}");
         sb.AppendLine($"Email: {data.PacienteUsuario?.Email}");
@@ -50,7 +51,7 @@ public static class ReportPreviewBuilder
         }
 
         sb.AppendLine();
-        sb.AppendLine("Medicacion actual");
+        sb.AppendLine("Medicación actual");
         sb.AppendLine("-----------------");
         foreach (var medicamento in data.Medicamentos.DefaultIfEmpty())
         {
@@ -60,7 +61,7 @@ public static class ReportPreviewBuilder
         }
 
         sb.AppendLine();
-        sb.AppendLine("Mediciones del periodo");
+        sb.AppendLine("Mediciones registradas");
         sb.AppendLine("----------------------");
         foreach (var medicion in data.Mediciones.OrderByDescending(m => m.FechaHora).Take(15).DefaultIfEmpty())
         {
@@ -70,7 +71,7 @@ public static class ReportPreviewBuilder
         }
 
         sb.AppendLine();
-        sb.AppendLine("Notas medicas");
+        sb.AppendLine("Notas médicas relevantes");
         sb.AppendLine("-------------");
         foreach (var nota in data.Notas.OrderByDescending(n => n.FechaHora).Take(10).DefaultIfEmpty())
         {

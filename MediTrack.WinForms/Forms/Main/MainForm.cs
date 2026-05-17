@@ -15,7 +15,7 @@ public class MainForm : Form
 {
     private readonly ApplicationServices _services;
     private readonly AppSession _session;
-    private readonly Panel _moduleHost = new() { Dock = DockStyle.Fill, BackColor = AppTheme.Background };
+    private readonly Panel _moduleHost = new() { Dock = DockStyle.Fill, BackColor = AppTheme.Background, AutoScroll = true };
     private readonly FlowLayoutPanel _navPanel = new()
     {
         Dock = DockStyle.Fill,
@@ -34,7 +34,7 @@ public class MainForm : Form
     private readonly Label _lblPageSubtitle = new()
     {
         AutoSize = false,
-        Width = 720,
+        Dock = DockStyle.Fill,
         Height = 28,
         Font = AppTheme.SmallFont,
         ForeColor = AppTheme.TextSecondary
@@ -50,14 +50,15 @@ public class MainForm : Form
 
         AppTheme.StyleForm(this, "MediTrack");
         WindowState = FormWindowState.Maximized;
-        MinimumSize = new Size(1366, 820);
+        MinimumSize = new Size(1200, 720);
+        StartPosition = FormStartPosition.CenterScreen;
 
         var root = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 2
         };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 260));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 240));
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
         root.Controls.Add(BuildSidebar(), 0, 0);
@@ -78,15 +79,15 @@ public class MainForm : Form
         var header = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 150,
-            Padding = new Padding(24, 26, 24, 18),
+            Height = 144,
+            Padding = new Padding(20, 24, 20, 16),
             BackColor = AppTheme.SidebarAlt
         };
 
         header.Controls.Add(new Label
         {
             Text = "MediTrack",
-            Font = new Font("Segoe UI Semibold", 24, FontStyle.Bold),
+            Font = new Font("Segoe UI Semibold", 22, FontStyle.Bold),
             ForeColor = AppTheme.TextOnDark,
             AutoSize = true,
             Dock = DockStyle.Top
@@ -125,7 +126,8 @@ public class MainForm : Form
         var container = new Panel
         {
             Dock = DockStyle.Fill,
-            BackColor = AppTheme.Background
+            BackColor = AppTheme.Background,
+            AutoScroll = true
         };
 
         var header = new Panel
@@ -138,8 +140,7 @@ public class MainForm : Form
 
         var left = new TableLayoutPanel
         {
-            Dock = DockStyle.Left,
-            Width = 760,
+            Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 2
         };
@@ -151,7 +152,7 @@ public class MainForm : Form
         var right = new TableLayoutPanel
         {
             Dock = DockStyle.Right,
-            Width = 350,
+            Width = 320,
             ColumnCount = 1,
             RowCount = 2
         };
@@ -162,7 +163,10 @@ public class MainForm : Form
             Text = $"{_session.CurrentUser?.NombreCompleto} | {_session.CurrentUser?.Rol}",
             Font = AppTheme.SubtitleFont,
             ForeColor = AppTheme.TextPrimary,
-            AutoSize = true,
+            AutoSize = false,
+            Dock = DockStyle.Fill,
+            Height = 24,
+            AutoEllipsis = true,
             TextAlign = ContentAlignment.TopRight
         }, 0, 0);
         right.Controls.Add(new Label
@@ -170,17 +174,22 @@ public class MainForm : Form
             Text = DateTime.Now.ToString("dddd, dd MMMM yyyy"),
             Font = AppTheme.SmallFont,
             ForeColor = AppTheme.TextSecondary,
-            AutoSize = true
+            AutoSize = false,
+            Dock = DockStyle.Fill,
+            Height = 22,
+            AutoEllipsis = true,
+            TextAlign = ContentAlignment.TopRight
         }, 0, 1);
 
-        header.Controls.Add(right);
         header.Controls.Add(left);
+        header.Controls.Add(right);
 
         var body = new Panel
         {
             Dock = DockStyle.Fill,
             Padding = new Padding(12),
-            BackColor = AppTheme.Background
+            BackColor = AppTheme.Background,
+            AutoScroll = true
         };
         body.Controls.Add(_moduleHost);
 
@@ -234,7 +243,7 @@ public class MainForm : Form
     private void RegisterNav(string text, Func<Form> formFactory)
     {
         var button = UiFactory.CreateButton(text, false);
-        button.Width = 205;
+        button.Width = 196;
         button.Margin = new Padding(0, 0, 0, 10);
         button.TextAlign = ContentAlignment.MiddleLeft;
         button.BackColor = AppTheme.SidebarAlt;

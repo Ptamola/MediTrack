@@ -20,12 +20,12 @@ public class EnfermedadesForm : BaseModuleForm
     private readonly DateTimePicker _dtpFechaFin = UiFactory.CreateDatePicker();
     private readonly TextBox _txtObservaciones = UiFactory.CreateTextBox(multiline: true);
     private readonly DataGridView _grid = UiFactory.CreateGrid();
-    private readonly Label _lblResumen = UiFactory.CreateParagraphLabel("Consulta tus enfermedades activas y mantÃ©n actualizadas las observaciones clÃ­nicas.");
+    private readonly Label _lblResumen = UiFactory.CreateParagraphLabel("Consulta tus enfermedades activas y mantén actualizadas las observaciones clínicas.");
     private readonly ToolTip _toolTip = new();
     private List<PatientDisease> _items = [];
     private Guid? _selectedRelationId;
 
-    public EnfermedadesForm(ApplicationServices services, AppSession session) : base("Enfermedades crÃ³nicas")
+    public EnfermedadesForm(ApplicationServices services, AppSession session) : base("Enfermedades crónicas")
     {
         _services = services;
         _session = session;
@@ -49,7 +49,7 @@ public class EnfermedadesForm : BaseModuleForm
         ApplyResponsiveLayout(page, left, right, stacked);
         page.Resize += (_, _) =>
         {
-            var shouldStack = page.ClientSize.Width < 920;
+            var shouldStack = page.ClientSize.Width < 1060;
             if (shouldStack == stacked)
             {
                 return;
@@ -129,16 +129,16 @@ public class EnfermedadesForm : BaseModuleForm
 
         form.Controls.Add(UiFactory.CreateLabel("Enfermedad"), 0, row++);
         form.Controls.Add(_cmbEnfermedades, 0, row++);
-        form.Controls.Add(UiFactory.CreateLabel("Fecha de diagnÃ³stico"), 0, row++);
+        form.Controls.Add(UiFactory.CreateLabel("Fecha de diagnóstico"), 0, row++);
         form.Controls.Add(_dtpDiagnostico, 0, row++);
         form.Controls.Add(UiFactory.CreateLabel("Estado"), 0, row++);
         form.Controls.Add(_cmbEstado, 0, row++);
-        form.Controls.Add(UiFactory.CreateLabel("Fecha de resoluciÃ³n"), 0, row++);
+        form.Controls.Add(UiFactory.CreateLabel("Fecha de resolución"), 0, row++);
         form.Controls.Add(_dtpFechaFin, 0, row++);
         form.Controls.Add(UiFactory.CreateLabel("Observaciones"), 0, row++);
         form.Controls.Add(_txtObservaciones, 0, row++);
 
-        var note = UiFactory.CreateInfoPanel("Puedes seleccionar una enfermedad del historial para actualizar el diagnÃ³stico u observaciones.");
+        var note = UiFactory.CreateInfoPanel("Puedes seleccionar una enfermedad del historial para actualizar el diagnóstico u observaciones.");
         form.Controls.Add(note, 0, row++);
 
         var actions = new FlowLayoutPanel
@@ -149,13 +149,13 @@ public class EnfermedadesForm : BaseModuleForm
             FlowDirection = FlowDirection.LeftToRight,
             Margin = new Padding(0, 8, 0, 0)
         };
-        var btnAdd = UiFactory.CreateButton("AÃ±adir enfermedad");
+        var btnAdd = UiFactory.CreateButton("Añadir enfermedad");
         btnAdd.Click += async (_, _) => await AddAsync();
-        _toolTip.SetToolTip(btnAdd, "Asigna al paciente una enfermedad nueva o una enfermedad existente del catÃ¡logo.");
+        _toolTip.SetToolTip(btnAdd, "Asigna al paciente una enfermedad nueva o una enfermedad existente del catálogo.");
 
-        var btnUpdate = UiFactory.CreateButton("Actualizar enfermedad", false);
+        var btnUpdate = UiFactory.CreateButton("Guardar edición", false);
         btnUpdate.Click += async (_, _) => await UpdateAsync();
-        _toolTip.SetToolTip(btnUpdate, "Modifica la fecha de diagnÃ³stico u observaciones de una enfermedad ya asignada.");
+        _toolTip.SetToolTip(btnUpdate, "Guarda los cambios de fecha, estado u observaciones de la enfermedad seleccionada.");
         actions.Controls.Add(btnAdd);
         actions.Controls.Add(btnUpdate);
         form.Controls.Add(actions, 0, row++);
@@ -194,7 +194,7 @@ public class EnfermedadesForm : BaseModuleForm
             _cmbPacientes.ValueMember = "Id";
             await PatientAccessHelper.EnsureSelectedPatientAsync(_services, _session);
             PatientAccessHelper.ApplySelectedPatient(_cmbPacientes, _session);
-            _lblResumen.Text = "Selecciona un paciente y registra o actualiza el seguimiento de sus enfermedades crÃ³nicas.";
+            _lblResumen.Text = "Selecciona un paciente y registra o actualiza el seguimiento de sus enfermedades crónicas.";
         }
 
         await LoadGridAsync();
@@ -211,14 +211,14 @@ public class EnfermedadesForm : BaseModuleForm
     {
         if (GetPatientId() == Guid.Empty)
         {
-            MessageBox.Show("Selecciona un paciente vÃ¡lido.", "MediTrack");
+            MessageBox.Show("Selecciona un paciente válido.", "MediTrack");
             return;
         }
 
         var diseaseName = _cmbEnfermedades.Text.Trim();
         if (string.IsNullOrWhiteSpace(diseaseName))
         {
-            MessageBox.Show("Selecciona o escribe una enfermedad vÃ¡lida.", "MediTrack");
+            MessageBox.Show("Selecciona o escribe una enfermedad válida.", "MediTrack");
             return;
         }
 
@@ -244,7 +244,7 @@ public class EnfermedadesForm : BaseModuleForm
     {
         if (GetPatientId() == Guid.Empty)
         {
-            MessageBox.Show("Selecciona un paciente vÃ¡lido.", "MediTrack");
+            MessageBox.Show("Selecciona un paciente válido.", "MediTrack");
             return;
         }
 
@@ -257,7 +257,7 @@ public class EnfermedadesForm : BaseModuleForm
         var existing = _items.FirstOrDefault(x => x.Id == _selectedRelationId.Value);
         if (existing == null)
         {
-            MessageBox.Show("No se encontrÃ³ la enfermedad seleccionada.", "MediTrack");
+            MessageBox.Show("No se encontró la enfermedad seleccionada.", "MediTrack");
             return;
         }
 
@@ -266,7 +266,7 @@ public class EnfermedadesForm : BaseModuleForm
         existing.FechaFin = existing.Activa ? null : _dtpFechaFin.Value.Date;
         if (!existing.Activa && _dtpFechaFin.Value.Date < existing.FechaDiagnostico.Date)
         {
-            MessageBox.Show("La fecha de resoluciÃ³n no puede ser anterior a la fecha de diagnÃ³stico.", "MediTrack");
+            MessageBox.Show("La fecha de resolución no puede ser anterior a la fecha de diagnóstico.", "MediTrack");
             return;
         }
 
@@ -382,15 +382,15 @@ public class EnfermedadesForm : BaseModuleForm
         {
             enfermedad.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             enfermedad.FillWeight = 28;
-            enfermedad.MinimumWidth = 180;
+            enfermedad.MinimumWidth = 150;
         }
 
         if (_grid.Columns["FechaDiagnostico"] is { } fecha)
         {
-            fecha.HeaderText = "Fecha diagnÃ³stico";
+            fecha.HeaderText = "Fecha diagnóstico";
             fecha.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            fecha.Width = 145;
-            fecha.MinimumWidth = 135;
+            fecha.Width = 130;
+            fecha.MinimumWidth = 120;
             fecha.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         }
 
@@ -398,16 +398,16 @@ public class EnfermedadesForm : BaseModuleForm
         {
             fechaFin.HeaderText = "Fecha fin";
             fechaFin.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            fechaFin.Width = 120;
-            fechaFin.MinimumWidth = 110;
+            fechaFin.Width = 105;
+            fechaFin.MinimumWidth = 95;
             fechaFin.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         }
 
         if (_grid.Columns["Estado"] is { } estado)
         {
             estado.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            estado.Width = 130;
-            estado.MinimumWidth = 120;
+            estado.Width = 120;
+            estado.MinimumWidth = 105;
             estado.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         }
 
@@ -415,7 +415,7 @@ public class EnfermedadesForm : BaseModuleForm
         {
             observaciones.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             observaciones.FillWeight = 52;
-            observaciones.MinimumWidth = 260;
+            observaciones.MinimumWidth = 210;
             observaciones.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         }
     }

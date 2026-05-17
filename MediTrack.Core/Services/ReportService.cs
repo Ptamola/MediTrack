@@ -10,7 +10,7 @@ using QuestPDF.Infrastructure;
 namespace MediTrack.Core.Services;
 
 /// <summary>
-/// Servicio de informes clinicos. Reune informacion de pacientes, enfermedades, medicacion,
+/// Servicio de informes clínicos. Reúne información de pacientes, enfermedades, medicación,
 /// mediciones y notas para generar vista previa y PDF.
 /// </summary>
 public class ReportService(
@@ -30,7 +30,7 @@ public class ReportService(
         .ToList();
 
     /// <summary>
-    /// Genera el informe clinico del periodo y opcionalmente lo guarda en el historial.
+    /// Genera el informe clínico del periodo y opcionalmente lo guarda en el historial.
     /// </summary>
     public async Task<GeneratedReportResult> GenerateAsync(Guid patientId, Guid generadoPorUsuarioId, DateTime fechaInicio, DateTime fechaFin, bool saveToHistory = true)
     {
@@ -41,7 +41,7 @@ public class ReportService(
         var previousDoctors = await doctorAssignmentService.GetPreviousDoctorsForPatientAsync(patientId);
         var catalog = await diseaseService.GetCatalogAsync();
         var patientDiseases = await diseaseService.GetPatientDiseasesAsync(patientId);
-        // El informe distingue enfermedades activas y superadas para mostrar el historial clinico completo.
+        // El informe distingue enfermedades activas y superadas para mostrar el historial clínico completo.
         var diseases = patientDiseases
             .Where(pd => pd.Activa)
             .Join(catalog, pd => pd.EnfermedadId, d => d.Id, (_, d) => d)
@@ -65,7 +65,7 @@ public class ReportService(
         var result = new GeneratedReportResult
         {
             Reporte = report,
-            Titulo = $"Informe clÃ­nico - {patientUser?.NombreCompleto}",
+            Titulo = $"Informe clínico - {patientUser?.NombreCompleto}",
             PacienteUsuario = patientUser,
             PacientePerfil = patientProfile,
             DoctorAsignado = assignedDoctor,
@@ -90,13 +90,13 @@ public class ReportService(
     }
 
     /// <summary>
-    /// Exporta el ultimo informe generado a PDF y guarda la ruta resultante en MySQL.
+    /// Exporta el último informe generado a PDF y guarda la ruta resultante en MySQL.
     /// </summary>
     public async Task<OperationResult> ExportPdfAsync(GeneratedReportResult reportResult, string outputFilePath)
     {
         if (string.IsNullOrWhiteSpace(outputFilePath))
         {
-            return OperationResult.Fail("Debes indicar una ruta de archivo vÃ¡lida.");
+            return OperationResult.Fail("Debes indicar una ruta de archivo válida.");
         }
 
         var directory = Path.GetDirectoryName(outputFilePath);
@@ -117,6 +117,7 @@ public class ReportService(
                 page.Content().Column(column =>
                 {
                     column.Spacing(10);
+                    column.Item().Text("Informe clínico generado en MediTrack a partir de los datos locales almacenados en MySQL.");
                     column.Item().Text($"Paciente: {reportResult.PacienteUsuario?.NombreCompleto}");
                     column.Item().Text($"Doctor asignado: {reportResult.DoctorAsignado?.NombreCompleto ?? "Sin asignar"}");
                     column.Item().Text(
@@ -144,15 +145,15 @@ public class ReportService(
                             : $"- {GetDiseaseName(diseaseCatalog, disease.EnfermedadId)}: {disease.FechaDiagnostico:dd/MM/yyyy} - {disease.FechaFin:dd/MM/yyyy}, superada.");
                     }
 
-                    column.Item().Text("Medicamentos activos").Bold();
+                    column.Item().Text("Medicación actual").Bold();
                     foreach (var medication in reportResult.Medicamentos.DefaultIfEmpty())
                     {
                         column.Item().Text(medication == null
-                            ? "Sin medicaciÃ³n activa."
+                            ? "Sin medicación activa."
                             : $"- {medication.Nombre} | {medication.Dosis} | {medication.Frecuencia} | {medication.Horario}");
                     }
 
-                    column.Item().Text("Mediciones").Bold();
+                    column.Item().Text("Mediciones registradas").Bold();
                     column.Item().Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
@@ -177,11 +178,11 @@ public class ReportService(
                         }
                     });
 
-                    column.Item().Text("Notas mÃ©dicas").Bold();
+                    column.Item().Text("Notas médicas relevantes").Bold();
                     foreach (var note in reportResult.Notas.Take(10).DefaultIfEmpty())
                     {
                         column.Item().Text(note == null
-                            ? "Sin notas mÃ©dicas."
+                            ? "Sin notas médicas."
                             : $"- {note.FechaHora:dd/MM/yyyy HH:mm} | {note.Titulo}: {note.Contenido}");
                     }
                 });

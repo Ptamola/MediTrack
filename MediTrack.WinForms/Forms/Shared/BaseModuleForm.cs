@@ -9,13 +9,13 @@ public class BaseModuleForm : Form
         Dock = DockStyle.Fill,
         ColumnCount = 1,
         RowCount = 2,
-        Padding = new Padding(28, 24, 28, 28),
+        Padding = new Padding(24, 20, 24, 24),
         AutoScroll = true,
         BackColor = AppTheme.Background
     };
 
     protected readonly Label TitleLabel;
-    protected readonly Panel ContentPanel = new() { Dock = DockStyle.Fill, BackColor = AppTheme.Background };
+    protected readonly Panel ContentPanel = new() { Dock = DockStyle.Fill, BackColor = AppTheme.Background, AutoScroll = true };
 
     public BaseModuleForm(string title)
     {

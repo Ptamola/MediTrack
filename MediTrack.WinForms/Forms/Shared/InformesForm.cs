@@ -51,7 +51,7 @@ public class InformesForm : BaseModuleForm
             BackColor = AppTheme.Background
         };
         page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        page.RowStyles.Add(new RowStyle(SizeType.Absolute, 230));
+        page.RowStyles.Add(new RowStyle(SizeType.Absolute, 220));
         page.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         page.Controls.Add(BuildFilterCard(), 0, 0);
@@ -152,7 +152,7 @@ public class InformesForm : BaseModuleForm
         ApplyContentLayout(content, reportsCard, previewCard, stacked);
         content.Resize += (_, _) =>
         {
-            var shouldStack = content.ClientSize.Width < 1050;
+            var shouldStack = content.ClientSize.Width < 1080;
             if (shouldStack == stacked)
             {
                 return;
@@ -304,7 +304,7 @@ public class InformesForm : BaseModuleForm
         : _cmbPacientes.SelectedValue is Guid patientId ? patientId : Guid.Empty;
 
     /// <summary>
-    /// Genera un informe clinico del periodo seleccionado y lo guarda en el historial.
+    /// Genera un informe clínico del periodo seleccionado y lo guarda en el historial.
     /// </summary>
     private async Task GenerateAsync()
     {
@@ -384,7 +384,7 @@ public class InformesForm : BaseModuleForm
     }
 
     /// <summary>
-    /// Recarga el historial de informes y mantiene seleccionada la fila recien generada si aplica.
+    /// Recarga el historial de informes y mantiene seleccionada la fila recién generada si aplica.
     /// </summary>
     private async Task ReloadReportsAsync(Guid? selectedReportId = null)
     {
@@ -453,7 +453,7 @@ public class InformesForm : BaseModuleForm
     }
 
     /// <summary>
-    /// Renderiza una vista previa enriquecida dentro de la aplicacion sin abrir el PDF.
+    /// Renderiza una vista previa enriquecida dentro de la aplicación sin abrir el PDF.
     /// </summary>
     private void RenderPreview(GeneratedReportResult report)
     {
@@ -470,18 +470,25 @@ public class InformesForm : BaseModuleForm
             ? report.Enfermedades.Select(e => e.Nombre)
             : ["Sin enfermedades registradas."]);
 
+        var diseaseCatalog = report.CatalogoEnfermedades.ToDictionary(d => d.Id, d => d.Nombre);
+        var resolvedDiseases = report.EnfermedadesPaciente.Where(e => !e.Activa).ToList();
+        AppendSection("Enfermedades superadas", resolvedDiseases.Count > 0
+            ? resolvedDiseases.Select(e =>
+                $"{GetDiseaseName(diseaseCatalog, e.EnfermedadId)}: {e.FechaDiagnostico:dd/MM/yyyy} - {e.FechaFin:dd/MM/yyyy}, superada.")
+            : ["Sin enfermedades superadas registradas."]);
+
         AppendSection("Medicación actual", report.Medicamentos.Count > 0
             ? report.Medicamentos.Select(m => $"{m.Nombre} | {m.Dosis} | {m.Frecuencia} | {m.Horario}")
             : ["Sin medicación activa."]);
 
-        AppendSection("Mediciones del periodo", report.Mediciones.Count > 0
+        AppendSection("Mediciones registradas", report.Mediciones.Count > 0
             ? report.Mediciones
                 .OrderByDescending(m => m.FechaHora)
                 .Take(10)
                 .Select(m => $"{m.FechaHora:dd/MM/yyyy HH:mm}  |  {MeasurementHelper.GetDisplayName(m.TipoMedicion)}  |  {m.Valor} {m.Unidad}")
             : ["Sin mediciones en el periodo seleccionado."]);
 
-        AppendSection("Notas médicas", report.Notas.Count > 0
+        AppendSection("Notas médicas relevantes", report.Notas.Count > 0
             ? report.Notas
                 .OrderByDescending(n => n.FechaHora)
                 .Take(8)
@@ -498,7 +505,7 @@ public class InformesForm : BaseModuleForm
         _preview.AppendText(text + Environment.NewLine);
         _preview.SelectionFont = new Font("Segoe UI", 10);
         _preview.SelectionColor = AppTheme.TextSecondary;
-        _preview.AppendText("Informe clínico generado dentro de MediTrack" + Environment.NewLine + Environment.NewLine);
+        _preview.AppendText("Informe clínico generado en MediTrack a partir de los datos locales almacenados en MySQL." + Environment.NewLine + Environment.NewLine);
     }
 
     private void AppendMeta(string label, string value)
@@ -554,10 +561,10 @@ public class InformesForm : BaseModuleForm
             _gridReports.Columns["Id"].Visible = false;
         }
 
-        SetReportColumn("Fecha", 24, 145, fixedWidth: true);
-        SetReportColumn("Periodo", 30, 200);
-        SetReportColumn("Paciente", 28, 180);
-        SetReportColumn("Pdf", 12, 100, fixedWidth: true);
+        SetReportColumn("Fecha", 24, 135, fixedWidth: true);
+        SetReportColumn("Periodo", 30, 170);
+        SetReportColumn("Paciente", 28, 150);
+        SetReportColumn("Pdf", 12, 92, fixedWidth: true);
     }
 
     private void SetReportColumn(string name, float fillWeight, int minimumWidth, bool fixedWidth = false)
@@ -580,4 +587,7 @@ public class InformesForm : BaseModuleForm
             column.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         }
     }
+
+    private static string GetDiseaseName(Dictionary<Guid, string> catalog, Guid diseaseId) =>
+        catalog.TryGetValue(diseaseId, out var name) ? name : "Enfermedad no disponible";
 }

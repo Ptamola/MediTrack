@@ -88,8 +88,8 @@ public static class AppTheme
         control.Font = BodyFont;
         control.Margin = new Padding(0, 0, 0, 14);
         control.MinimumSize = control is TextBoxBase textBox && textBox.Multiline
-            ? new Size(180, 96)
-            : new Size(180, 36);
+            ? new Size(150, 96)
+            : new Size(150, 36);
     }
 
     public static void ApplyGridStyle(DataGridView grid)
@@ -106,6 +106,7 @@ public static class AppTheme
         grid.EnableHeadersVisualStyles = false;
         grid.Dock = DockStyle.Fill;
         grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+        grid.ShowCellToolTips = true;
         grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         grid.GridColor = Border;

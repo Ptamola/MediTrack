@@ -37,8 +37,8 @@ public class DashboardPacienteForm : BaseModuleForm
             BackColor = AppTheme.Background
         };
         page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        page.RowStyles.Add(new RowStyle(SizeType.Absolute, 130));
-        page.RowStyles.Add(new RowStyle(SizeType.Absolute, 150));
+        page.RowStyles.Add(new RowStyle(SizeType.Absolute, 165));
+        page.RowStyles.Add(new RowStyle(SizeType.Absolute, 170));
         page.RowStyles.Add(new RowStyle(SizeType.Percent, 34));
         page.RowStyles.Add(new RowStyle(SizeType.Percent, 66));
 
@@ -67,7 +67,7 @@ public class DashboardPacienteForm : BaseModuleForm
             stacked = shouldStack;
             ApplyTwoPanelLayout(mid, diseasesCard, remindersCard, stacked, firstWeight: 50, secondWeight: 50);
             ApplyTwoPanelLayout(bottom, measurementsCard, notesCard, stacked, firstWeight: 54, secondWeight: 46);
-            page.RowStyles[1] = new RowStyle(SizeType.Absolute, stacked ? 300 : 150);
+            page.RowStyles[1] = new RowStyle(SizeType.Absolute, stacked ? 330 : 170);
             page.RowStyles[2] = stacked ? new RowStyle(SizeType.Absolute, 340) : new RowStyle(SizeType.Percent, 34);
             page.RowStyles[3] = stacked ? new RowStyle(SizeType.Absolute, 520) : new RowStyle(SizeType.Percent, 66);
         };
@@ -84,11 +84,11 @@ public class DashboardPacienteForm : BaseModuleForm
     private Control BuildHero()
     {
         var hero = AppTheme.CreateCardPanel();
-        hero.Padding = new Padding(24);
+        hero.Padding = new Padding(24, 22, 24, 22);
         hero.BackColor = Color.FromArgb(239, 246, 255);
         var heroLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, BackColor = hero.BackColor };
         heroLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        heroLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        heroLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
         heroLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         heroLayout.Controls.Add(new Label
         {
@@ -96,26 +96,36 @@ public class DashboardPacienteForm : BaseModuleForm
             AutoSize = false,
             Dock = DockStyle.Fill,
             Font = new Font("Segoe UI Semibold", 18, FontStyle.Bold),
-            ForeColor = AppTheme.TextPrimary
+            ForeColor = AppTheme.TextPrimary,
+            TextAlign = ContentAlignment.MiddleLeft
         }, 0, 0);
-        heroLayout.Controls.Add(UiFactory.CreateParagraphLabel("Consulta tus enfermedades, próximas tomas, últimas mediciones y notas médicas desde un solo lugar.", 52), 0, 1);
+        heroLayout.Controls.Add(UiFactory.CreateParagraphLabel("Consulta tus enfermedades, próximas tomas, últimas mediciones y notas médicas desde un solo lugar.", 64), 0, 1);
         hero.Controls.Add(heroLayout);
         return hero;
     }
 
     private Control BuildMetrics()
     {
-        var metrics = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1, AutoScroll = true };
+        var metrics = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1, AutoScroll = true, Padding = new Padding(0, 4, 0, 4) };
         metrics.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         for (var i = 0; i < 4; i++)
         {
             metrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
         }
 
-        metrics.Controls.Add(UiFactory.CreateMetricCard("Enfermedades activas", "0", "Patologías registradas", AppTheme.Primary), 0, 0);
-        metrics.Controls.Add(UiFactory.CreateMetricCard("Medicación activa", "0", "Tratamientos actuales", AppTheme.Success), 1, 0);
-        metrics.Controls.Add(UiFactory.CreateMetricCard("Próximas tomas", "0", "Recordatorios calculados", AppTheme.Warning), 2, 0);
-        metrics.Controls.Add(UiFactory.CreateMetricCard("Últimas mediciones", "0", "Entradas recientes", AppTheme.Accent), 3, 0);
+        var cards = new[]
+        {
+            UiFactory.CreateMetricCard("Enfermedades activas", "0", "Patologías registradas", AppTheme.Primary),
+            UiFactory.CreateMetricCard("Medicación activa", "0", "Tratamientos actuales", AppTheme.Success),
+            UiFactory.CreateMetricCard("Próximas tomas", "0", "Recordatorios calculados", AppTheme.Warning),
+            UiFactory.CreateMetricCard("Últimas mediciones", "0", "Entradas recientes", AppTheme.Accent)
+        };
+
+        for (var i = 0; i < cards.Length; i++)
+        {
+            cards[i].Margin = new Padding(0, 0, i == cards.Length - 1 ? 0 : 12, 0);
+            metrics.Controls.Add(cards[i], i, 0);
+        }
 
         _lblCountEnfermedades.Text = "0";
         _lblCountMedicacion.Text = "0";

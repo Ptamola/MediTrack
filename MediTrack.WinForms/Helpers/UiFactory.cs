@@ -109,7 +109,7 @@ public static class UiFactory
         var button = new Button
         {
             Text = text,
-            Width = 180
+            Width = 170
         };
 
         AppTheme.ApplyButtonStyle(button, primary);
@@ -121,7 +121,7 @@ public static class UiFactory
         var button = new Button
         {
             Text = text,
-            Width = 180
+            Width = 170
         };
 
         AppTheme.ApplyButtonStyle(button, primary: false, danger: true);
@@ -156,7 +156,7 @@ public static class UiFactory
     {
         var card = AppTheme.CreateMutedPanel();
         card.Padding = new Padding(18, 16, 18, 16);
-        card.MinimumSize = new Size(170, 112);
+        card.MinimumSize = new Size(150, 108);
 
         var marker = new Panel
         {
@@ -169,7 +169,7 @@ public static class UiFactory
         {
             Text = title,
             AutoSize = true,
-            MaximumSize = new Size(220, 0),
+            MaximumSize = new Size(190, 0),
             Font = AppTheme.SmallFont,
             ForeColor = AppTheme.TextSecondary,
             Margin = new Padding(0, 0, 0, 6)
@@ -179,7 +179,7 @@ public static class UiFactory
         {
             Text = value,
             AutoSize = true,
-            MaximumSize = new Size(220, 0),
+            MaximumSize = new Size(190, 0),
             Font = new Font("Segoe UI Semibold", 18, FontStyle.Bold),
             ForeColor = AppTheme.TextPrimary,
             Margin = new Padding(0, 0, 0, 4)
@@ -189,7 +189,7 @@ public static class UiFactory
         {
             Text = subtitle,
             AutoSize = true,
-            MaximumSize = new Size(220, 0),
+            MaximumSize = new Size(190, 0),
             Font = AppTheme.SmallFont,
             ForeColor = AppTheme.TextSecondary
         };

@@ -171,7 +171,7 @@ public class NotasMedicasForm : BaseModuleForm
         ApplyResponsiveLayout(layout, editorCard, historyCard, stacked: false);
         layout.Resize += (_, _) =>
         {
-            var shouldStack = layout.ClientSize.Width < 920;
+            var shouldStack = layout.ClientSize.Width < 1080;
             if (shouldStack == isStacked)
             {
                 return;
@@ -317,8 +317,8 @@ public class NotasMedicasForm : BaseModuleForm
         {
             fechaColumn.HeaderText = "Fecha";
             fechaColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            fechaColumn.Width = 150;
-            fechaColumn.MinimumWidth = 135;
+            fechaColumn.Width = 138;
+            fechaColumn.MinimumWidth = 125;
             fechaColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
         }
 
@@ -327,7 +327,7 @@ public class NotasMedicasForm : BaseModuleForm
             titleColumn.HeaderText = "Título";
             titleColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             titleColumn.FillWeight = 24;
-            titleColumn.MinimumWidth = 170;
+            titleColumn.MinimumWidth = 140;
         }
 
         if (_grid.Columns["Contenido"] is { } contentColumn)
@@ -335,7 +335,7 @@ public class NotasMedicasForm : BaseModuleForm
             contentColumn.HeaderText = "Contenido";
             contentColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             contentColumn.FillWeight = 62;
-            contentColumn.MinimumWidth = 320;
+            contentColumn.MinimumWidth = 260;
             contentColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         }
 
@@ -343,8 +343,8 @@ public class NotasMedicasForm : BaseModuleForm
         {
             visibleColumn.HeaderText = "Visible";
             visibleColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            visibleColumn.Width = 76;
-            visibleColumn.MinimumWidth = 68;
+            visibleColumn.Width = 72;
+            visibleColumn.MinimumWidth = 64;
             visibleColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
         }
     }

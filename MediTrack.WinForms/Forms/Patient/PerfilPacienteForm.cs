@@ -67,7 +67,7 @@ public class PerfilPacienteForm : BaseModuleForm
         ApplyResponsiveLayout(page, summaryCard, formCard, stacked);
         page.Resize += (_, _) =>
         {
-            var shouldStack = page.ClientSize.Width < 920;
+            var shouldStack = page.ClientSize.Width < 1040;
             if (shouldStack == stacked)
             {
                 return;
@@ -158,7 +158,7 @@ public class PerfilPacienteForm : BaseModuleForm
         summaryLayout.Controls.Add(_lblNombre);
         summaryLayout.Controls.Add(_lblEmail);
         summaryLayout.Controls.Add(_lblEdad);
-        summaryLayout.Controls.Add(UiFactory.CreateParagraphLabel("Mantener este perfil actualizado ayuda a que el seguimiento clÃ­nico, los informes y las notas mÃ©dicas sean mÃ¡s Ãºtiles y precisos.", 96));
+        summaryLayout.Controls.Add(UiFactory.CreateParagraphLabel("Mantener este perfil actualizado ayuda a que el seguimiento clínico, los informes y las notas médicas sean más útiles y precisos.", 96));
         summaryCard.Controls.Add(summaryLayout);
         return summaryCard;
     }
@@ -184,16 +184,16 @@ public class PerfilPacienteForm : BaseModuleForm
 
         var row = 0;
         AddPairedFields(form, ref row, "DNI/NIE", _txtDniNie, "Fecha de nacimiento", _dtpNacimiento);
-        AddPairedFields(form, ref row, "Sexo", _cmbSexo, "Grupo sanguÃ­neo", _cmbGrupoSanguineo);
+        AddPairedFields(form, ref row, "Sexo", _cmbSexo, "Grupo sanguíneo", _cmbGrupoSanguineo);
         AddPairedFields(form, ref row, "Altura (cm)", _numAltura, "Peso (kg)", _numPeso);
-        AddPairedFields(form, ref row, "TelÃ©fono", _txtTelefono, "DirecciÃ³n", _txtDireccion);
-        AddPairedFields(form, ref row, "Contacto de emergencia", _txtContactoEmergenciaNombre, "TelÃ©fono de emergencia", _txtContactoEmergenciaTelefono);
-        AddPairedFields(form, ref row, "Seguro mÃ©dico", _txtSeguroMedico, "NÃºmero de tarjeta sanitaria", _txtNumeroTarjetaSanitaria);
+        AddPairedFields(form, ref row, "Teléfono", _txtTelefono, "Dirección", _txtDireccion);
+        AddPairedFields(form, ref row, "Contacto de emergencia", _txtContactoEmergenciaNombre, "Teléfono de emergencia", _txtContactoEmergenciaTelefono);
+        AddPairedFields(form, ref row, "Seguro médico", _txtSeguroMedico, "Número de tarjeta sanitaria", _txtNumeroTarjetaSanitaria);
         AddWideField(form, ref row, "Alergias", _txtAlergias);
-        AddWideField(form, ref row, "Antecedentes mÃ©dicos", _txtAntecedentes);
-        AddWideField(form, ref row, "InformaciÃ³n extra del paciente", _txtInformacionExtra);
+        AddWideField(form, ref row, "Antecedentes médicos", _txtAntecedentes);
+        AddWideField(form, ref row, "Información extra del paciente", _txtInformacionExtra);
 
-        var help = UiFactory.CreateInfoPanel("Puedes indicar cualquier situaciÃ³n relevante: si el paciente vive solo, si cuenta con apoyo familiar, limitaciones de movilidad u otra informaciÃ³n que ayude al seguimiento.", 86);
+        var help = UiFactory.CreateInfoPanel("Puedes indicar cualquier situación relevante: si el paciente vive solo, si cuenta con apoyo familiar, limitaciones de movilidad u otra información que ayude al seguimiento.", 86);
         form.Controls.Add(help, 0, row++);
         form.SetColumnSpan(help, 2);
 
@@ -285,7 +285,7 @@ public class PerfilPacienteForm : BaseModuleForm
         using var dialog = new OpenFileDialog
         {
             Title = "Seleccionar imagen del paciente",
-            Filter = "ImÃ¡genes|*.jpg;*.jpeg;*.png;*.bmp;*.gif|Todos los archivos|*.*"
+            Filter = "Imágenes|*.jpg;*.jpeg;*.png;*.bmp;*.gif|Todos los archivos|*.*"
         };
 
         if (dialog.ShowDialog(this) != DialogResult.OK)

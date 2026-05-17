@@ -33,19 +33,22 @@ public class LoginForm : Form
         _session = session;
 
         AppTheme.StyleForm(this, "MediTrack - Inicio de sesión");
-        MinimumSize = new Size(1080, 720);
-        Size = new Size(1220, 780);
+        MinimumSize = new Size(1100, 650);
+        Size = new Size(1100, 650);
+        StartPosition = FormStartPosition.CenterScreen;
 
         var root = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 2,
+            RowCount = 1,
             BackColor = AppTheme.Background,
-            Padding = new Padding(32)
+            Padding = new Padding(0)
         };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 52));
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 48));
 
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 520));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.Controls.Add(BuildBrandingPanel(), 0, 0);
         root.Controls.Add(BuildLoginPanel(), 1, 0);
         Controls.Add(root);
@@ -57,19 +60,18 @@ public class LoginForm : Form
         {
             Dock = DockStyle.Fill,
             BackColor = AppTheme.Sidebar,
-            Padding = new Padding(48)
+            Padding = new Padding(56, 72, 48, 56)
         };
 
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 4,
+            RowCount = 3,
             BackColor = AppTheme.Sidebar
         };
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         var title = new Label
@@ -77,37 +79,26 @@ public class LoginForm : Form
             Text = "MediTrack",
             AutoSize = true,
             MaximumSize = new Size(560, 0),
-            Font = new Font("Segoe UI Semibold", 38, FontStyle.Bold),
+            Font = new Font("Segoe UI Semibold", 40, FontStyle.Bold),
             ForeColor = Color.White,
-            Margin = new Padding(0, 16, 0, 8)
+            Margin = new Padding(0, 0, 0, 22)
         };
 
         var subtitle = new Label
         {
-            Text = "Seguimiento clínico moderno para pacientes crónicos",
-            AutoSize = true,
-            MaximumSize = new Size(540, 0),
-            Font = new Font("Segoe UI", 17, FontStyle.Regular),
-            ForeColor = Color.FromArgb(191, 219, 254)
-        };
-
-        var bullets = new Label
-        {
-            AutoSize = true,
-            MaximumSize = new Size(560, 0),
-            Font = new Font("Segoe UI", 13, FontStyle.Regular),
-            ForeColor = Color.White,
-            Text =
-                "- Inicio de sesión por roles" + Environment.NewLine +
-                "- Gestión clínica centralizada" + Environment.NewLine +
-                "- Informes y PDF integrados" + Environment.NewLine +
-                "- Datos locales con arquitectura escalable"
+            Text = "Seguimiento clínico moderno" + Environment.NewLine + "para pacientes con enfermedades crónicas.",
+            Dock = DockStyle.Top,
+            AutoSize = false,
+            Height = 120,
+            MaximumSize = new Size(420, 0),
+            Font = new Font("Segoe UI", 18, FontStyle.Regular),
+            ForeColor = Color.FromArgb(191, 219, 254),
+            TextAlign = ContentAlignment.TopLeft
         };
 
         layout.Controls.Add(title, 0, 0);
         layout.Controls.Add(subtitle, 0, 1);
-        layout.Controls.Add(new Panel(), 0, 2);
-        layout.Controls.Add(bullets, 0, 3);
+        layout.Controls.Add(new Panel { BackColor = AppTheme.Sidebar }, 0, 2);
         panel.Controls.Add(layout);
         return panel;
     }
@@ -118,7 +109,7 @@ public class LoginForm : Form
         {
             Dock = DockStyle.Fill,
             BackColor = AppTheme.Background,
-            Padding = new Padding(24)
+            Padding = new Padding(0)
         };
 
         var outer = new TableLayoutPanel
@@ -129,15 +120,15 @@ public class LoginForm : Form
             BackColor = AppTheme.Background
         };
         outer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 480));
+        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 420));
         outer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         outer.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
-        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 470));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 430));
         outer.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
 
         var card = AppTheme.CreateCardPanel();
         card.Dock = DockStyle.Fill;
-        card.Padding = new Padding(30);
+        card.Padding = new Padding(28);
 
         var layout = new TableLayoutPanel
         {
@@ -214,12 +205,6 @@ public class LoginForm : Form
         card.Controls.Add(layout);
         outer.Controls.Add(card, 1, 1);
         host.Controls.Add(outer);
-
-        host.Resize += (_, _) =>
-        {
-            outer.ColumnStyles[1].Width = Math.Min(480, Math.Max(360, host.Width - 96));
-            outer.RowStyles[1].Height = Math.Min(470, Math.Max(400, host.Height - 80));
-        };
 
         return host;
     }
